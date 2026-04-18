@@ -1,0 +1,66 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scenes/spell_sandbox/spell_sandbox.gd" id="1_sandbox"]
+[ext_resource type="Script" path="res://scripts/spell/projectiles/projectile_factory.gd" id="2_factory"]
+[ext_resource type="Script" path="res://scripts/spell/runtime/wand_runtime.gd" id="3_wand"]
+
+[node name="SpellSandbox" type="Node2D"]
+script = ExtResource("1_sandbox")
+
+[node name="ProjectileRoot" type="Node2D" parent="."]
+unique_name_in_owner = true
+
+[node name="Caster" type="Marker2D" parent="."]
+unique_name_in_owner = true
+position = Vector2(310, 180)
+
+[node name="ProjectileFactory" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("2_factory")
+projectile_parent_path = NodePath("../ProjectileRoot")
+
+[node name="WandRuntime" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("3_wand")
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="InfoPanel" type="PanelContainer" parent="Hud"]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 284.0
+offset_bottom = 348.0
+
+[node name="Margin" type="MarginContainer" parent="Hud/InfoPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="StatusLabel" type="Label" parent="Hud/InfoPanel/Margin"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Noita-like Spell Sandbox"
+vertical_alignment = 0
+
+[node name="LogPanel" type="PanelContainer" parent="Hud"]
+offset_left = 336.0
+offset_top = 12.0
+offset_right = 608.0
+offset_bottom = 348.0
+
+[node name="LogMargin" type="MarginContainer" parent="Hud/LogPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="LogLabel" type="RichTextLabel" parent="Hud/LogPanel/LogMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+bbcode_enabled = false
+fit_content = true
+scroll_active = false
+text = ""
