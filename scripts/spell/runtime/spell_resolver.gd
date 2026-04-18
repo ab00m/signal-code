@@ -8,29 +8,29 @@ var debug_lines: Array[String] = []
 
 func resolve_main_cast(wand_runtime: WandRuntime, origin: Vector2, direction: Vector2) -> Array[SpawnRequest]:
 	debug_lines.clear()
-	_log("[SpellResolver] Begin cast index=%d" % wand_runtime.get_deck_index())
+	_log("[法术解析] 开始施法，牌组索引=%d" % wand_runtime.get_deck_index())
 
 	var results: Array[SpawnRequest] = []
 	var wand_data := wand_runtime.wand_data
 	if wand_data == null:
-		_log("[SpellResolver] Abort: missing WandData")
+		_log("[法术解析] 中止：缺少 WandData")
 		return results
 	if wand_data.deck.is_empty():
-		_log("[SpellResolver] Abort: empty deck")
+		_log("[法术解析] 中止：牌组为空")
 		return results
 
 	var remaining_main_actions: int = max(1, wand_data.draws_per_cast)
 	while remaining_main_actions > 0:
 		var group := resolve_next_group(wand_runtime)
 		if group.is_empty():
-			_log("[SpellResolver] Cast failed: no Action found")
+			_log("[法术解析] 施法失败：没有找到动作卡")
 			break
 
 		var group_requests := build_requests_from_group(group, wand_runtime, origin, direction)
 		results.append_array(group_requests)
 		remaining_main_actions -= max(1, group.get_consumed_action_count())
 
-	_log("[SpellResolver] Spawn requests built: %d" % results.size())
+	_log("[法术解析] 已生成发射请求：%d 个" % results.size())
 	return results
 
 
@@ -47,32 +47,32 @@ func resolve_next_group(wand_runtime: WandRuntime) -> SpellGroup:
 		if card == null:
 			continue
 
-		_log("[SpellResolver] Draw card: %s" % card.get_display_name())
+		_log("[法术解析] 抽到卡牌：%s" % card.get_display_name())
 
 		if card is ModifierCardData:
 			var modifier := card as ModifierCardData
 			if modifier.modifier_type == ModifierCardData.ModifierType.MULTICAST:
 				if multicast_seen:
-					_log("[SpellResolver] Warning: extra multicast ignored")
+					_log("[法术解析] 警告：额外的多重施放已忽略")
 					continue
 				multicast_seen = true
 				target_action_count = max(1, modifier.value_int)
 				group.target_action_count = target_action_count
 				group.modifiers.append(modifier)
-				_log("[SpellResolver] Group target actions set to %d" % target_action_count)
+				_log("[法术解析] 当前施法组目标动作数设为 %d" % target_action_count)
 			else:
 				group.modifiers.append(modifier)
 		elif card is ActionCardData:
 			group.actions.append(card as ActionCardData)
 		else:
-			_log("[SpellResolver] Warning: unsupported card ignored")
+			_log("[法术解析] 警告：不支持的卡牌已忽略")
 
 	if group.actions.is_empty():
-		_log("[SpellResolver] Group failed after %d draws" % drawn)
+		_log("[法术解析] 施法组失败：抽取 %d 张后仍无动作卡" % drawn)
 	elif group.actions.size() < target_action_count:
-		_log("[SpellResolver] Warning: group resolved partially after full deck scan")
+		_log("[法术解析] 警告：扫完整个牌组后只解析到部分施法组")
 
-	_log("[SpellResolver] Group resolved: %s" % group.describe())
+	_log("[法术解析] 施法组解析完成：%s" % group.describe())
 	return group
 
 
@@ -115,13 +115,13 @@ func resolve_payload_requests(
 	if payload_action_count <= 0:
 		return results
 	if trigger_depth >= MAX_TRIGGER_DEPTH:
-		_log("[SpellResolver] Warning: trigger payload depth limit reached")
+		_log("[法术解析] 警告：触发载荷递归深度已达上限")
 		return results
 
 	for _payload_index in range(payload_action_count):
 		var group := resolve_next_group(wand_runtime)
 		if group.is_empty():
-			_log("[SpellResolver] Trigger payload ended: no Action found")
+			_log("[法术解析] 触发载荷结束：没有找到动作卡")
 			break
 
 		var group_requests := build_requests_from_group(group, wand_runtime, origin, direction, trigger_depth + 1)
@@ -151,7 +151,7 @@ func _build_request(
 	request.projectile_color = action.projectile_color
 	request.on_hit_effects = action.on_hit_effects.duplicate()
 	request.echo_delay = bundle.echo_delay
-	_log("[SpellResolver] Request: %s damage=%.1f speed=%.1f" % [
+	_log("[法术解析] 发射请求：%s 伤害=%.1f 速度=%.1f" % [
 		request.display_name,
 		request.damage,
 		request.speed,
@@ -176,7 +176,7 @@ func _attach_trigger_payload(
 		direction,
 		trigger_depth
 	)
-	_log("[SpellResolver] Trigger payload attached to %s: %d request(s)" % [
+	_log("[法术解析] 已为 %s 绑定触发载荷：%d 个请求" % [
 		request.display_name,
 		request.trigger_payload.size(),
 	])

@@ -77,9 +77,9 @@ func _update_hud() -> void:
 
 	var request_text := ""
 	if _last_request_count >= 0:
-		request_text = "\nLast requests: %d" % _last_request_count
+		request_text = "\n上次发射请求数：%d" % _last_request_count
 
-	status_label.text = "Noita-like Spell Sandbox\nCast: Space / Enter / Left Mouse\nDeck index: %d / %d\nCooldown: %.2fs%s\n\n%s" % [
+	status_label.text = "Noita 风格法术沙盒\n施法：空格 / 回车 / 鼠标左键\n牌组索引：%d / %d\n冷却剩余：%.2f 秒%s\n\n%s" % [
 		deck_index,
 		deck_size,
 		wand_runtime.get_cooldown_remaining(),
@@ -95,9 +95,9 @@ func _update_hud() -> void:
 
 func _get_deck_text(deck_index: int) -> String:
 	if wand_data == null or wand_data.deck.is_empty():
-		return "Deck: empty"
+		return "牌组：空"
 
-	var lines := "Deck:\n"
+	var lines := "牌组：\n"
 	for index in range(wand_data.deck.size()):
 		var card := wand_data.deck[index]
 		var marker := "  "
@@ -113,22 +113,22 @@ func _build_default_wand() -> WandData:
 	wand.cast_delay = 0.08
 	wand.recharge_time = 0.12
 	wand.deck = [
-		_modifier(&"damage_up", "Damage Up", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
-		_action(&"spark_bolt", "Spark Bolt", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
-		_modifier(&"double_cast", "Double Cast", ModifierCardData.ModifierType.MULTICAST, 0.0, 2),
-		_modifier(&"damage_up", "Damage Up", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
-		_action(&"spark_bolt", "Spark Bolt", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
-		_action(&"fireball", "Fireball", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
-		_modifier(&"echo", "Echo", ModifierCardData.ModifierType.ECHO, 0.28, 0),
-		_trigger_action(&"timer_bolt", "Timer Bolt", TriggerActionCardData.TriggerMode.ON_TIMER, 0.35, 1, 4.0, 360.0, 1.2, 5.0, Color(0.65, 0.48, 1.0, 1.0)),
-		_modifier(&"spread", "Spread", ModifierCardData.ModifierType.ADD_SPREAD, 18.0, 0),
-		_action(&"fireball", "Fireball", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
-		_trigger_action(&"trigger_bolt", "Trigger Bolt", TriggerActionCardData.TriggerMode.ON_HIT, 0.0, 1, 4.0, 440.0, 1.4, 5.0, Color(0.62, 1.0, 0.55, 1.0)),
-		_modifier(&"damage_up", "Damage Up", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
-		_action(&"bomb", "Bomb", 25.0, 210.0, 1.8, 10.0, 1, 0.0, 30.0, Color(0.9, 0.78, 0.24, 1.0)),
-		_modifier(&"speed_up", "Speed Up", ModifierCardData.ModifierType.SPEED_MULTIPLY, 1.35, 0),
-		_modifier(&"plus_one", "Projectile Count +1", ModifierCardData.ModifierType.ADD_PROJECTILE_COUNT, 0.0, 1),
-		_action(&"spark_bolt", "Spark Bolt", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
+		_modifier(&"damage_up", "伤害提升", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
+		_action(&"spark_bolt", "火花弹", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
+		_modifier(&"double_cast", "双重施放", ModifierCardData.ModifierType.MULTICAST, 0.0, 2),
+		_modifier(&"damage_up", "伤害提升", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
+		_action(&"spark_bolt", "火花弹", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
+		_action(&"fireball", "火球", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
+		_modifier(&"echo", "回响", ModifierCardData.ModifierType.ECHO, 0.28, 0),
+		_trigger_action(&"timer_bolt", "计时弹", TriggerActionCardData.TriggerMode.ON_TIMER, 0.35, 1, 4.0, 360.0, 1.2, 5.0, Color(0.65, 0.48, 1.0, 1.0)),
+		_modifier(&"spread", "散射", ModifierCardData.ModifierType.ADD_SPREAD, 18.0, 0),
+		_action(&"fireball", "火球", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
+		_trigger_action(&"trigger_bolt", "触发弹", TriggerActionCardData.TriggerMode.ON_HIT, 0.0, 1, 4.0, 440.0, 1.4, 5.0, Color(0.62, 1.0, 0.55, 1.0)),
+		_modifier(&"damage_up", "伤害提升", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
+		_action(&"bomb", "炸弹", 25.0, 210.0, 1.8, 10.0, 1, 0.0, 30.0, Color(0.9, 0.78, 0.24, 1.0)),
+		_modifier(&"speed_up", "速度提升", ModifierCardData.ModifierType.SPEED_MULTIPLY, 1.35, 0),
+		_modifier(&"plus_one", "弹丸数量 +1", ModifierCardData.ModifierType.ADD_PROJECTILE_COUNT, 0.0, 1),
+		_action(&"spark_bolt", "火花弹", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
 	]
 	return wand
 

@@ -24,7 +24,7 @@ func can_cast() -> bool:
 func cast_once(caster: Node, origin: Vector2, direction: Vector2) -> Array[SpawnRequest]:
 	var empty_results: Array[SpawnRequest] = []
 	if not can_cast():
-		last_debug_lines = ["[WandRuntime] Cannot cast: cooldown, missing wand, or empty deck"]
+		last_debug_lines = ["[法杖运行时] 无法施法：冷却中、缺少法杖数据或牌组为空"]
 		return empty_results
 
 	var resolver := SpellResolver.new()

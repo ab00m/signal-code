@@ -41,7 +41,7 @@ theme_override_constants/margin_bottom = 8
 [node name="StatusLabel" type="Label" parent="Hud/InfoPanel/Margin"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "Noita-like Spell Sandbox"
+text = "Noita 风格法术沙盒"
 vertical_alignment = 0
 
 [node name="LogPanel" type="PanelContainer" parent="Hud"]

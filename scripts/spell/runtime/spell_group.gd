@@ -23,7 +23,7 @@ func describe() -> String:
 	for modifier in modifiers:
 		modifier_names.append(modifier.get_display_name())
 
-	return "actions=%s modifiers=%s target=%d" % [
+	return "动作=%s 修饰器=%s 目标动作数=%d" % [
 		_join_names(action_names),
 		_join_names(modifier_names),
 		target_action_count,
