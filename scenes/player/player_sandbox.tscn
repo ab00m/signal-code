@@ -1,0 +1,115 @@
+[gd_scene format=3 uid="uid://nkbpayxpd8uv"]
+
+[ext_resource type="Script" uid="uid://bmei2lhnjm3ib" path="res://scenes/player/player_sandbox.gd" id="1_sandbox"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://bp25xrsny3ya3" path="res://scripts/spell/projectiles/projectile_factory.gd" id="3_factory"]
+[ext_resource type="Script" uid="uid://d102dt8x26gi" path="res://scripts/spell/runtime/wand_runtime.gd" id="4_wand"]
+[ext_resource type="Script" uid="uid://p20hkn6awaj1" path="res://scripts/combat/enemy_locator.gd" id="5_locator"]
+[ext_resource type="Script" uid="uid://b7ddqjblw1hs2" path="res://scripts/combat/screen_clear_service.gd" id="6_clear"]
+[ext_resource type="Script" uid="uid://bnpqsdxrni07a" path="res://scripts/systems/game_settings.gd" id="7_settings"]
+
+[node name="PlayerSandbox" type="Node2D" unique_id=493166575]
+script = ExtResource("1_sandbox")
+
+[node name="ProjectileRoot" type="Node2D" parent="." unique_id=1955538021]
+unique_name_in_owner = true
+
+[node name="Player" parent="." unique_id=577665662 instance=ExtResource("2_player")]
+unique_name_in_owner = true
+position = Vector2(60, 180)
+
+[node name="ProjectileFactory" type="Node" parent="." unique_id=79361943]
+unique_name_in_owner = true
+script = ExtResource("3_factory")
+projectile_parent_path = NodePath("../ProjectileRoot")
+
+[node name="WandRuntime" type="Node" parent="." unique_id=513158111]
+unique_name_in_owner = true
+script = ExtResource("4_wand")
+
+[node name="EnemyLocator" type="Node" parent="." unique_id=826944803]
+unique_name_in_owner = true
+script = ExtResource("5_locator")
+
+[node name="ScreenClearService" type="Node" parent="." unique_id=115920306]
+unique_name_in_owner = true
+script = ExtResource("6_clear")
+
+[node name="GameSettings" type="Node" parent="." unique_id=2064842355]
+unique_name_in_owner = true
+script = ExtResource("7_settings")
+
+[node name="Hud" type="CanvasLayer" parent="." unique_id=1032371864]
+
+[node name="InfoPanel" type="PanelContainer" parent="Hud" unique_id=1454407354]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 328.0
+offset_bottom = 308.0
+
+[node name="InfoMargin" type="MarginContainer" parent="Hud/InfoPanel" unique_id=1142199629]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoVBox" type="VBoxContainer" parent="Hud/InfoPanel/InfoMargin" unique_id=303052913]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="StatusLabel" type="Label" parent="Hud/InfoPanel/InfoMargin/InfoVBox" unique_id=220087037]
+unique_name_in_owner = true
+layout_mode = 2
+text = "玩家主角沙盒"
+
+[node name="AutoAimCheckBox" type="CheckBox" parent="Hud/InfoPanel/InfoMargin/InfoVBox" unique_id=1680835945]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "自动瞄准"
+
+[node name="ButtonRow" type="HBoxContainer" parent="Hud/InfoPanel/InfoMargin/InfoVBox" unique_id=110001622]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ResetButton" type="Button" parent="Hud/InfoPanel/InfoMargin/InfoVBox/ButtonRow" unique_id=726394326]
+unique_name_in_owner = true
+layout_mode = 2
+text = "重置"
+
+[node name="SpawnButton" type="Button" parent="Hud/InfoPanel/InfoMargin/InfoVBox/ButtonRow" unique_id=233004623]
+unique_name_in_owner = true
+layout_mode = 2
+text = "生成敌人"
+
+[node name="LogPanel" type="PanelContainer" parent="Hud" unique_id=2122933746]
+offset_left = 348.0
+offset_top = 12.0
+offset_right = 700.0
+offset_bottom = 220.0
+
+[node name="LogMargin" type="MarginContainer" parent="Hud/LogPanel" unique_id=1797391836]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="LogLabel" type="RichTextLabel" parent="Hud/LogPanel/LogMargin" unique_id=4016720]
+unique_name_in_owner = true
+layout_mode = 2
+fit_content = true
+scroll_active = false
+
+[node name="ResultLabel" type="Label" parent="Hud" unique_id=270205285]
+unique_name_in_owner = true
+visible = false
+offset_left = 504.0
+offset_top = 300.0
+offset_right = 776.0
+offset_bottom = 420.0
+theme_override_font_sizes/font_size = 32
+text = "玩家死亡"
+horizontal_alignment = 1
+vertical_alignment = 1
