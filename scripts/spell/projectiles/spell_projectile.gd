@@ -87,19 +87,21 @@ func _setup_hit_area() -> void:
 	_hit_area.add_child(collision_shape)
 
 
-func _on_hit_body_entered(_body: Node2D) -> void:
-	_handle_hit()
+func _on_hit_body_entered(body: Node2D) -> void:
+	_handle_hit(body)
 
 
 func _on_hit_area_entered(area: Area2D) -> void:
 	if area == _hit_area:
 		return
-	_handle_hit()
+	_handle_hit(area)
 
 
-func _handle_hit() -> void:
+func _handle_hit(hit_source: Node = null) -> void:
 	if request == null:
 		return
+
+	_apply_enemy_hit(hit_source)
 
 	if request.trigger_mode == TriggerActionCardData.TriggerMode.ON_HIT:
 		_trigger_payload(global_position, _get_move_direction())
@@ -109,6 +111,29 @@ func _handle_hit() -> void:
 		return
 
 	queue_free()
+
+
+func _apply_enemy_hit(hit_source: Node) -> void:
+	var enemy := _find_enemy_source(hit_source)
+	if enemy == null or not enemy.has_method("apply_hit"):
+		return
+
+	var hit := HitData.new()
+	hit.damage = request.damage
+	hit.hit_point = global_position
+	hit.hit_direction = _get_move_direction()
+	hit.knockback_force = request.knockback_force
+	hit.source = self
+	enemy.call("apply_hit", hit)
+
+
+func _find_enemy_source(source: Node) -> Node:
+	var node := source
+	while node != null:
+		if node.is_in_group(&"enemy"):
+			return node
+		node = node.get_parent()
+	return null
 
 
 func _trigger_payload(origin: Vector2, direction: Vector2) -> void:

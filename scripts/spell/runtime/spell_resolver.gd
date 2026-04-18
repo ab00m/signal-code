@@ -142,6 +142,7 @@ func _build_request(
 	request.origin = origin
 	request.direction = direction.normalized()
 	request.damage = action.damage * bundle.damage_mul
+	request.knockback_force = action.knockback_force
 	request.speed = action.speed * bundle.speed_mul
 	request.lifetime = action.lifetime * bundle.lifetime_mul
 	request.radius = action.radius * bundle.size_mul

@@ -1,12 +1,15 @@
 extends Node2D
 
-const DebugEnemyScene := preload("res://scripts/combat/debug_enemy.gd")
+const NORMAL_ENEMY_CONFIG := preload("res://resources/enemies/enemy_normal_signal.tres")
+const ELITE_ENEMY_CONFIG := preload("res://resources/enemies/enemy_elite_signal.tres")
+const BOSS_ENEMY_CONFIG := preload("res://resources/enemies/enemy_boss_signal.tres")
 
 @onready var player: Player = %Player
 @onready var projectile_factory: ProjectileFactory = %ProjectileFactory
 @onready var wand_runtime: WandRuntime = %WandRuntime
 @onready var enemy_locator: EnemyLocator = %EnemyLocator
 @onready var screen_clear_service: ScreenClearService = %ScreenClearService
+@onready var enemy_spawner: EnemySpawner = %EnemySpawner
 @onready var game_settings: GameSettings = %GameSettings
 @onready var status_label: Label = %StatusLabel
 @onready var log_label: RichTextLabel = %LogLabel
@@ -21,6 +24,7 @@ func _ready() -> void:
 	wand_runtime.wand_data = _build_default_wand()
 	wand_runtime.projectile_factory = projectile_factory
 	player.bind_dependencies(enemy_locator, wand_runtime, screen_clear_service, game_settings)
+	_configure_enemy_spawner()
 	_connect_player_signals()
 	_connect_ui()
 	_reset_sandbox()
@@ -59,8 +63,16 @@ func _connect_ui() -> void:
 		%SpawnButton.pressed.connect(_spawn_enemy_wave)
 
 
+func _configure_enemy_spawner() -> void:
+	enemy_spawner.normal_configs.clear()
+	enemy_spawner.normal_configs.append(NORMAL_ENEMY_CONFIG)
+	enemy_spawner.elite_configs.clear()
+	enemy_spawner.elite_configs.append(ELITE_ENEMY_CONFIG)
+	enemy_spawner.boss_config = BOSS_ENEMY_CONFIG
+
+
 func _reset_sandbox() -> void:
-	_clear_debug_enemies()
+	_clear_enemies()
 	_damage_events = 0
 	_screen_clear_events = 0
 	wand_runtime.reset_runtime()
@@ -71,22 +83,15 @@ func _reset_sandbox() -> void:
 
 
 func _spawn_enemy_wave() -> void:
-	var target := player as Node2D
-	_spawn_enemy(Vector2(680.0, 250.0), false, target)
-	_spawn_enemy(Vector2(760.0, 440.0), false, target)
-	_spawn_enemy(Vector2(920.0, 360.0), true, target)
+	enemy_spawner.spawn_normal_random_y(NORMAL_ENEMY_CONFIG)
+	enemy_spawner.spawn_normal_random_y(NORMAL_ENEMY_CONFIG)
+	enemy_spawner.spawn_elite(ELITE_ENEMY_CONFIG)
+	enemy_spawner.spawn_boss(BOSS_ENEMY_CONFIG)
 
 
-func _spawn_enemy(position: Vector2, is_boss: bool, target: Node2D) -> void:
-	var enemy := DebugEnemyScene.new() as DebugEnemy
-	enemy.configure(position, is_boss, target)
-	enemy.name = "BossEnemy" if is_boss else "DebugEnemy"
-	add_child(enemy)
-
-
-func _clear_debug_enemies() -> void:
+func _clear_enemies() -> void:
 	for node in get_tree().get_nodes_in_group(&"enemy"):
-		if node is DebugEnemy:
+		if node is Node:
 			node.queue_free()
 
 
@@ -104,6 +109,7 @@ func _update_hud() -> void:
 		"玩家主角沙盒\n"
 		+ "自动瞄准：%s\n" % ("开启" if game_settings.auto_aim_enabled else "关闭")
 		+ "HP：%d / %d\n" % [player.current_hp, player.max_hp]
+		+ "XP：%d  金币：%d\n" % [player.current_xp, player.current_gold]
 		+ "无敌剩余：%.2f 秒\n" % player.hurt_invincible_timer
 		+ "施法 CD：%.2f 秒\n" % player.cast_cd_timer
 		+ "法杖 CD：%.2f 秒\n" % wand_runtime.get_cooldown_remaining()

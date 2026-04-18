@@ -12,10 +12,17 @@ func execute_player_screen_clear() -> int:
 		if not (node is Node):
 			continue
 		var enemy := node as Node
-		if enemy.is_queued_for_deletion() or _is_screen_clear_immune(enemy):
+		if enemy.is_queued_for_deletion():
 			continue
 
-		if enemy.has_method("die_by_screen_clear"):
+		if _is_screen_clear_immune(enemy):
+			if enemy.has_method("on_player_screen_clear"):
+				enemy.call("on_player_screen_clear")
+			continue
+
+		if enemy.has_method("on_player_screen_clear"):
+			enemy.call("on_player_screen_clear")
+		elif enemy.has_method("die_by_screen_clear"):
 			enemy.call("die_by_screen_clear")
 		else:
 			enemy.queue_free()

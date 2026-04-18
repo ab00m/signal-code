@@ -6,6 +6,7 @@ var display_name: String = ""
 var origin: Vector2 = Vector2.ZERO
 var direction: Vector2 = Vector2.RIGHT
 var damage: float = 0.0
+var knockback_force: float = 0.0
 var speed: float = 0.0
 var lifetime: float = 1.0
 var radius: float = 4.0
@@ -27,6 +28,7 @@ func duplicate_request() -> SpawnRequest:
 	request.origin = origin
 	request.direction = direction
 	request.damage = damage
+	request.knockback_force = knockback_force
 	request.speed = speed
 	request.lifetime = lifetime
 	request.radius = radius

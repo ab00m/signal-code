@@ -2,6 +2,7 @@ class_name ActionCardData
 extends SpellCardData
 
 @export var damage: float = 5.0
+@export var knockback_force: float = 120.0
 @export var speed: float = 420.0
 @export var lifetime: float = 1.2
 @export var radius: float = 5.0

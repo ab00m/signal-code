@@ -3,6 +3,8 @@ extends Node2D
 
 signal hp_changed(current_hp: int, max_hp: int)
 signal damaged(current_hp: int)
+signal xp_changed(current_xp: int)
+signal gold_changed(current_gold: int)
 signal screen_cleared()
 signal died()
 signal cast_requested(direction: Vector2)
@@ -21,6 +23,8 @@ signal cast_requested(direction: Vector2)
 @onready var cast_origin: Marker2D = %CastOrigin
 
 var current_hp: int
+var current_xp: int = 0
+var current_gold: int = 0
 var is_dead: bool = false
 var cast_cd_timer: float = 0.0
 var hurt_invincible_timer: float = 0.0
@@ -84,6 +88,8 @@ func bind_dependencies(
 
 func reset_player() -> void:
 	current_hp = maxi(1, max_hp)
+	current_xp = 0
+	current_gold = 0
 	is_dead = false
 	cast_cd_timer = 0.0
 	hurt_invincible_timer = 0.0
@@ -92,6 +98,8 @@ func reset_player() -> void:
 	hurtbox.monitoring = true
 	hurtbox.monitorable = true
 	hp_changed.emit(current_hp, max_hp)
+	xp_changed.emit(current_xp)
+	gold_changed.emit(current_gold)
 	queue_redraw()
 
 
@@ -148,6 +156,20 @@ func take_damage_from_enemy(_source: Node) -> void:
 	queue_redraw()
 
 
+func add_xp(amount: int) -> void:
+	if amount <= 0:
+		return
+	current_xp += amount
+	xp_changed.emit(current_xp)
+
+
+func add_gold(amount: int) -> void:
+	if amount <= 0:
+		return
+	current_gold += amount
+	gold_changed.emit(current_gold)
+
+
 func trigger_screen_clear() -> void:
 	if screen_clear_service != null:
 		screen_clear_service.execute_player_screen_clear()
@@ -199,13 +221,13 @@ func _resolve_dependencies() -> void:
 
 func _on_hurtbox_area_entered(area: Area2D) -> void:
 	var enemy := _find_enemy_source(area)
-	if enemy != null:
+	if enemy != null and _can_enemy_contact_player(enemy):
 		take_damage_from_enemy(enemy)
 
 
 func _on_hurtbox_body_entered(body: Node2D) -> void:
 	var enemy := _find_enemy_source(body)
-	if enemy != null:
+	if enemy != null and _can_enemy_contact_player(enemy):
 		take_damage_from_enemy(enemy)
 
 
@@ -216,6 +238,12 @@ func _find_enemy_source(source: Node) -> Node:
 			return node
 		node = node.get_parent()
 	return null
+
+
+func _can_enemy_contact_player(enemy: Node) -> bool:
+	if enemy.has_method("can_contact_player"):
+		return bool(enemy.call("can_contact_player"))
+	return true
 
 
 func _get_nearest_enemy(from_position: Vector2) -> Node2D:
