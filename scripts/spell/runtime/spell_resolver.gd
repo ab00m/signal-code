@@ -1,6 +1,8 @@
 class_name SpellResolver
 extends RefCounted
 
+const MAX_TRIGGER_DEPTH := 4
+
 var debug_lines: Array[String] = []
 
 
@@ -24,7 +26,7 @@ func resolve_main_cast(wand_runtime: WandRuntime, origin: Vector2, direction: Ve
 			_log("[SpellResolver] Cast failed: no Action found")
 			break
 
-		var group_requests := build_requests_from_group(group, origin, direction)
+		var group_requests := build_requests_from_group(group, wand_runtime, origin, direction)
 		results.append_array(group_requests)
 		remaining_main_actions -= max(1, group.get_consumed_action_count())
 
@@ -76,8 +78,10 @@ func resolve_next_group(wand_runtime: WandRuntime) -> SpellGroup:
 
 func build_requests_from_group(
 	group: SpellGroup,
+	wand_runtime: WandRuntime,
 	origin: Vector2,
-	direction: Vector2
+	direction: Vector2,
+	trigger_depth: int = 0
 ) -> Array[SpawnRequest]:
 	var results: Array[SpawnRequest] = []
 	var bundle := ResolvedModifierBundle.from_modifiers(group.modifiers)
@@ -92,7 +96,36 @@ func build_requests_from_group(
 			var offset := 0.0
 			if count > 1:
 				offset = lerpf(-spread * 0.5, spread * 0.5, float(index) / float(count - 1))
-			results.append(_build_request(action, bundle, origin, base_direction.rotated(deg_to_rad(offset))))
+			var request := _build_request(action, bundle, origin, base_direction.rotated(deg_to_rad(offset)))
+			if action is TriggerActionCardData:
+				_attach_trigger_payload(request, action as TriggerActionCardData, wand_runtime, origin, request.direction, trigger_depth)
+			results.append(request)
+
+	return results
+
+
+func resolve_payload_requests(
+	wand_runtime: WandRuntime,
+	payload_action_count: int,
+	origin: Vector2,
+	direction: Vector2,
+	trigger_depth: int
+) -> Array[SpawnRequest]:
+	var results: Array[SpawnRequest] = []
+	if payload_action_count <= 0:
+		return results
+	if trigger_depth >= MAX_TRIGGER_DEPTH:
+		_log("[SpellResolver] Warning: trigger payload depth limit reached")
+		return results
+
+	for _payload_index in range(payload_action_count):
+		var group := resolve_next_group(wand_runtime)
+		if group.is_empty():
+			_log("[SpellResolver] Trigger payload ended: no Action found")
+			break
+
+		var group_requests := build_requests_from_group(group, wand_runtime, origin, direction, trigger_depth + 1)
+		results.append_array(group_requests)
 
 	return results
 
@@ -110,16 +143,43 @@ func _build_request(
 	request.direction = direction.normalized()
 	request.damage = action.damage * bundle.damage_mul
 	request.speed = action.speed * bundle.speed_mul
-	request.lifetime = action.lifetime
-	request.radius = action.radius
+	request.lifetime = action.lifetime * bundle.lifetime_mul
+	request.radius = action.radius * bundle.size_mul
+	request.pierce = max(0, action.pierce + bundle.pierce_add)
+	request.bounce = max(0, action.bounce + bundle.bounce_add)
 	request.explosion_radius = action.explosion_radius
 	request.projectile_color = action.projectile_color
+	request.on_hit_effects = action.on_hit_effects.duplicate()
+	request.echo_delay = bundle.echo_delay
 	_log("[SpellResolver] Request: %s damage=%.1f speed=%.1f" % [
 		request.display_name,
 		request.damage,
 		request.speed,
 	])
 	return request
+
+
+func _attach_trigger_payload(
+	request: SpawnRequest,
+	trigger_action: TriggerActionCardData,
+	wand_runtime: WandRuntime,
+	origin: Vector2,
+	direction: Vector2,
+	trigger_depth: int
+) -> void:
+	request.trigger_mode = trigger_action.trigger_mode
+	request.trigger_delay = trigger_action.timer_delay
+	request.trigger_payload = resolve_payload_requests(
+		wand_runtime,
+		trigger_action.payload_action_count,
+		origin,
+		direction,
+		trigger_depth
+	)
+	_log("[SpellResolver] Trigger payload attached to %s: %d request(s)" % [
+		request.display_name,
+		request.trigger_payload.size(),
+	])
 
 
 func _log(message: String) -> void:

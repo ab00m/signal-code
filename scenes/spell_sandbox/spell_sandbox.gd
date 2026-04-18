@@ -9,6 +9,10 @@ extends Node2D
 @onready var log_label: RichTextLabel = %LogLabel
 
 var _last_request_count: int = -1
+var _target_positions: Array[Vector2] = [
+	Vector2(470.0, 150.0),
+	Vector2(500.0, 235.0),
+]
 
 
 func _ready() -> void:
@@ -16,6 +20,7 @@ func _ready() -> void:
 		wand_data = _build_default_wand()
 	wand_runtime.wand_data = wand_data
 	wand_runtime.projectile_factory = projectile_factory
+	_build_debug_targets()
 	_update_hud()
 
 
@@ -43,6 +48,10 @@ func _draw() -> void:
 
 	var aim_direction := _get_aim_direction()
 	draw_line(caster.position, caster.position + aim_direction * 48.0, Color(0.95, 0.93, 0.62, 0.8), 2.0)
+
+	for target_position in _target_positions:
+		draw_circle(target_position, 14.0, Color(0.95, 0.28, 0.32, 0.9))
+		draw_arc(target_position, 18.0, 0.0, TAU, 32, Color(1.0, 1.0, 1.0, 0.45), 1.5)
 
 
 func _cast_toward_mouse() -> void:
@@ -110,11 +119,16 @@ func _build_default_wand() -> WandData:
 		_modifier(&"damage_up", "Damage Up", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
 		_action(&"spark_bolt", "Spark Bolt", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
 		_action(&"fireball", "Fireball", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
+		_modifier(&"echo", "Echo", ModifierCardData.ModifierType.ECHO, 0.28, 0),
+		_trigger_action(&"timer_bolt", "Timer Bolt", TriggerActionCardData.TriggerMode.ON_TIMER, 0.35, 1, 4.0, 360.0, 1.2, 5.0, Color(0.65, 0.48, 1.0, 1.0)),
 		_modifier(&"spread", "Spread", ModifierCardData.ModifierType.ADD_SPREAD, 18.0, 0),
+		_action(&"fireball", "Fireball", 12.0, 330.0, 1.4, 8.0, 1, 0.0, 18.0, Color(1.0, 0.42, 0.18, 1.0)),
+		_trigger_action(&"trigger_bolt", "Trigger Bolt", TriggerActionCardData.TriggerMode.ON_HIT, 0.0, 1, 4.0, 440.0, 1.4, 5.0, Color(0.62, 1.0, 0.55, 1.0)),
+		_modifier(&"damage_up", "Damage Up", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.5, 0),
+		_action(&"bomb", "Bomb", 25.0, 210.0, 1.8, 10.0, 1, 0.0, 30.0, Color(0.9, 0.78, 0.24, 1.0)),
+		_modifier(&"speed_up", "Speed Up", ModifierCardData.ModifierType.SPEED_MULTIPLY, 1.35, 0),
 		_modifier(&"plus_one", "Projectile Count +1", ModifierCardData.ModifierType.ADD_PROJECTILE_COUNT, 0.0, 1),
 		_action(&"spark_bolt", "Spark Bolt", 5.0, 480.0, 1.0, 4.0, 1, 0.0, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
-		_modifier(&"speed_up", "Speed Up", ModifierCardData.ModifierType.SPEED_MULTIPLY, 1.35, 0),
-		_action(&"bomb", "Bomb", 25.0, 210.0, 1.8, 10.0, 1, 0.0, 30.0, Color(0.9, 0.78, 0.24, 1.0)),
 	]
 	return wand
 
@@ -145,6 +159,35 @@ func _action(
 	return card
 
 
+func _trigger_action(
+	id: StringName,
+	display_name: String,
+	trigger_mode,
+	timer_delay: float,
+	payload_action_count: int,
+	damage: float,
+	speed: float,
+	lifetime: float,
+	radius: float,
+	projectile_color: Color
+) -> TriggerActionCardData:
+	var card := TriggerActionCardData.new()
+	card.id = id
+	card.display_name = display_name
+	card.trigger_mode = trigger_mode
+	card.timer_delay = timer_delay
+	card.payload_action_count = payload_action_count
+	card.damage = damage
+	card.speed = speed
+	card.lifetime = lifetime
+	card.radius = radius
+	card.projectile_count = 1
+	card.spread_degrees = 0.0
+	card.explosion_radius = 0.0
+	card.projectile_color = projectile_color
+	return card
+
+
 func _modifier(
 	id: StringName,
 	display_name: String,
@@ -159,3 +202,22 @@ func _modifier(
 	card.value_float = value_float
 	card.value_int = value_int
 	return card
+
+
+func _build_debug_targets() -> void:
+	for index in range(_target_positions.size()):
+		var target := Area2D.new()
+		target.name = "DebugTarget%d" % (index + 1)
+		target.position = _target_positions[index]
+		target.collision_layer = 1
+		target.collision_mask = 0
+		target.monitoring = false
+		target.monitorable = true
+
+		var circle := CircleShape2D.new()
+		circle.radius = 16.0
+
+		var collision_shape := CollisionShape2D.new()
+		collision_shape.shape = circle
+		target.add_child(collision_shape)
+		add_child(target)
