@@ -9,8 +9,8 @@ func spawn_requests(requests: Array[SpawnRequest]) -> Array[SpellProjectile]:
 	var parent := get_projectile_parent()
 	for request in requests:
 		var projectile := SpellProjectile.new()
-		parent.add_child(projectile)
 		projectile.configure(request)
+		parent.add_child(projectile)
 		spawned.append(projectile)
 	return spawned
 
