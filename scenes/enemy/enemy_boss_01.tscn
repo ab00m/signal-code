@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://dorq6v6oaahqx"]
+
+[ext_resource type="Texture2D" uid="uid://bi3jij11lcf1w" path="res://assets/gameplay/boss.png" id="1_7ct0c"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oix7v"]
+size = Vector2(29, 17.5)
+
+[node name="Node2D" type="Node2D" unique_id=1057212425]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1781818936]
+texture = ExtResource("1_7ct0c")
+flip_h = true
+hframes = 7
+vframes = 5
+
+[node name="Area2D" type="Area2D" parent="." unique_id=628075401]
+position = Vector2(0, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1337216423]
+shape = SubResource("RectangleShape2D_oix7v")

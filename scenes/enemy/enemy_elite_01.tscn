@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://1ohfd5gevgu8"]
+
+[ext_resource type="Texture2D" uid="uid://cmjpnglxlw6u6" path="res://assets/gameplay/enemy_elite_01.png" id="1_jvidy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_oix7v"]
+size = Vector2(8.004211, 8.7715225)
+
+[node name="Node2D" type="Node2D" unique_id=1057212425]
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1781818936]
+texture = ExtResource("1_jvidy")
+hframes = 7
+vframes = 10
+
+[node name="Area2D" type="Area2D" parent="." unique_id=628075401]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1337216423]
+scale = Vector2(1.1244081, 1.2752156)
+shape = SubResource("RectangleShape2D_oix7v")
