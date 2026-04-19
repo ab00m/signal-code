@@ -206,6 +206,8 @@ func _rebuild_body_scene() -> void:
 	var instance := config.body_scene.instantiate()
 	if instance is Node2D:
 		_body_instance = instance as Node2D
+		var scale_factor := maxf(0.01, config.body_scale)
+		_body_instance.scale *= Vector2(scale_factor, scale_factor)
 		_body_root.add_child(_body_instance)
 		_apply_body_scene_collision_shape()
 	else:

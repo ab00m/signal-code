@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://cdoknyyrq3o0s"]
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3 uid="uid://cdoknyyrq3o0s"]
 
 [ext_resource type="Script" uid="uid://b3i0rbso0vtnr" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
+[ext_resource type="PackedScene" path="res://scenes/enemy/enemy_boss_01.tscn" id="2_body"]
 
 [resource]
 script = ExtResource("1_config")
@@ -9,8 +10,8 @@ display_name = "Boss 信号核"
 enemy_type = 2
 max_hp = 160.0
 move_speed = 28.0
-collision_radius = 28.0
-separation_radius = 42.0
+collision_radius = 140.0
+separation_radius = 210.0
 separation_strength = 76.0
 knockback_multiplier = 0.35
 hit_flash_duration = 0.12
@@ -18,5 +19,7 @@ guaranteed_xp_drop = 12
 gold_drop_chance = 1.0
 gold_drop_amount_min = 8
 gold_drop_amount_max = 12
+body_scene = ExtResource("2_body")
+body_scale = 5.0
 body_color = Color(0.72, 0.36, 1, 1)
 outline_color = Color(1, 1, 1, 0.72)

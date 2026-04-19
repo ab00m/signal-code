@@ -6,7 +6,8 @@
 
 - 主战斗场景：`scenes/game_scene/levels/survival_arena.tscn`
 - 主战斗脚本：`scenes/game_scene/levels/survival_arena.gd`
-- 当前战斗使用的普通敌人配置：`resources/enemies/enemy_normal_signal.tres`
+- 当前战斗使用的普通敌人配置：`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
+- 当前战斗使用的精英敌人配置：`resources/enemies/enemy_elite_signal.tres`
 - 当前战斗使用的 Boss 配置：`resources/enemies/enemy_boss_signal.tres`
 - 当前战斗使用的默认法杖：`resources/spells/wands/combat_default_wand.tres`
 - 当前战斗使用的法术数据库：`resources/spells/spell_card_database.tres`
@@ -143,9 +144,11 @@
 
 当前已有：
 
-- `enemy_normal_signal.tres`：普通信号体，当前战斗普通波次使用。
+- `enemy_fast_signal.tres`：疾行信号体，当前战斗普通池使用，视觉资源为 `scenes/enemy/enemy_02.tscn`。
+- `enemy_heavy_signal.tres`：厚壳信号体，当前战斗普通池使用，视觉资源为 `scenes/enemy/enemy_03.tscn`。
+- `enemy_normal_signal.tres`：普通信号体，旧普通敌人配置，当前 `survival_arena.gd` 不再使用。
+- `enemy_elite_signal.tres`：精英信号体，当前战斗精英池使用，视觉资源为 `scenes/enemy/enemy_elite_01.tscn`，必定掉落金币。
 - `enemy_boss_signal.tres`：Boss 信号核，当前战斗 Boss 使用。
-- `enemy_elite_signal.tres`：精英信号体，目前资源存在，但 `survival_arena.gd` 当前没有接入精英刷怪流程。
 
 字段定义：`scripts/combat/enemies/enemy_config.gd`
 
@@ -261,7 +264,8 @@
 
 修改敌人强度和掉落：
 
-- 普通敌人：`resources/enemies/enemy_normal_signal.tres`
+- 普通敌人：`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
+- 精英敌人：`resources/enemies/enemy_elite_signal.tres`
 - Boss：`resources/enemies/enemy_boss_signal.tres`
 - 字段包括 `max_hp`、`move_speed`、`guaranteed_xp_drop`、`gold_drop_chance`、`gold_drop_amount_min/max`。
 

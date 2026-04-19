@@ -22,6 +22,7 @@ extends Resource
 @export var gold_drop_amount_max: int = 3
 
 @export var body_scene: PackedScene
+@export var body_scale: float = 1.0
 @export var body_color: Color = Color(0.95, 0.22, 0.28, 1.0)
 @export var outline_color: Color = Color(1.0, 1.0, 1.0, 0.55)
 

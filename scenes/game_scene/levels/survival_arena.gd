@@ -3,7 +3,9 @@ extends Control
 signal level_lost
 signal level_won(level_path: String)
 
-const NORMAL_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_normal_signal.tres")
+const FAST_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_fast_signal.tres")
+const HEAVY_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_heavy_signal.tres")
+const ELITE_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_elite_signal.tres")
 const BOSS_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_boss_signal.tres")
 const DAMAGE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/damage_up_10.tres")
 const CAST_RATE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/cast_rate_up_10.tres")
@@ -19,9 +21,9 @@ const SPELL_CARD_DATABASE: SpellCardDatabase = preload("res://resources/spells/s
 const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/combat_default_wand.tres")
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const WAVE_DEFS: Array[Dictionary] = [
-	{"count": 20, "interval": 0.8},
-	{"count": 20, "interval": 0.65},
-	{"count": 20, "interval": 0.5},
+	{"count": 20, "interval": 0.8, "elite_count": 0},
+	{"count": 20, "interval": 0.65, "elite_count": 1},
+	{"count": 20, "interval": 0.5, "elite_count": 2},
 ]
 const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 	DAMAGE_UP_10,
@@ -111,6 +113,9 @@ func _layout_combat_points() -> void:
 
 
 func _configure_runtime() -> void:
+	enemy_spawner.normal_configs = [FAST_ENEMY_CONFIG, HEAVY_ENEMY_CONFIG]
+	enemy_spawner.elite_configs = [ELITE_ENEMY_CONFIG]
+	enemy_spawner.boss_config = BOSS_ENEMY_CONFIG
 	run_modifier_controller.reset_modifiers()
 	experience_system.run_modifier_controller = run_modifier_controller
 	experience_system.reset_progression()
@@ -200,12 +205,18 @@ func _spawn_wave(wave: Dictionary) -> void:
 	is_spawning = true
 	var enemy_count := int(wave.get("count", 0))
 	var interval := float(wave.get("interval", 0.6))
+	var elite_count := clampi(int(wave.get("elite_count", 0)), 0, enemy_count)
+	var elite_start_index := enemy_count - elite_count
 
 	for index in range(enemy_count):
 		if encounter_finished:
 			is_spawning = false
 			return
-		var enemy := enemy_spawner.spawn_normal_random_y(NORMAL_ENEMY_CONFIG)
+		var enemy: EnemyBase
+		if index >= elite_start_index:
+			enemy = enemy_spawner.spawn_elite()
+		else:
+			enemy = enemy_spawner.spawn_normal_random_y()
 		_register_enemy(enemy)
 		if index < enemy_count - 1:
 			await get_tree().create_timer(interval, false).timeout
@@ -214,7 +225,7 @@ func _spawn_wave(wave: Dictionary) -> void:
 
 
 func _spawn_boss() -> void:
-	boss_enemy = enemy_spawner.spawn_boss(BOSS_ENEMY_CONFIG, boss_spawn)
+	boss_enemy = enemy_spawner.spawn_boss(null, boss_spawn)
 	_register_enemy(boss_enemy)
 	if boss_enemy != null and not boss_enemy.damaged.is_connected(_on_boss_damaged):
 		boss_enemy.damaged.connect(_on_boss_damaged)
