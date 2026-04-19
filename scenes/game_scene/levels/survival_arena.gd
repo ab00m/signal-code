@@ -15,6 +15,7 @@ const EXP_GAIN_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/ex
 const MAX_HP_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/max_hp_up_1.tres")
 const HEAL_1: UpgradeOptionConfig = preload("res://resources/upgrades/heal_1.tres")
 const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgrades/fallback_damage_up_5.tres")
+const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const WAVE_DEFS: Array[Dictionary] = [
 	{"count": 3, "interval": 0.8},
 	{"count": 5, "interval": 0.65},
@@ -47,6 +48,7 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var experience_system: ExperienceSystem = %ExperienceSystem
 @onready var upgrade_system: UpgradeSystem = %UpgradeSystem
 @onready var upgrade_panel: UpgradeSelectionPanel = %UpgradeSelectionPanel
+@onready var projectile_root: Node2D = %ProjectileRoot
 @onready var projectile_factory: ProjectileFactory = %ProjectileFactory
 @onready var wand_runtime: WandRuntime = %WandRuntime
 @onready var enemy_spawner: EnemySpawner = %EnemySpawner
@@ -56,6 +58,12 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var player_label: Label = %PlayerLabel
 @onready var boss_label: Label = %BossLabel
 @onready var hint_label: Label = %HintLabel
+@onready var result_layer: CanvasLayer = %ResultLayer
+@onready var result_title_label: Label = %ResultTitleLabel
+@onready var result_summary_label: Label = %ResultSummaryLabel
+@onready var result_stats_label: Label = %ResultStatsLabel
+@onready var result_restart_button: Button = %ResultRestartButton
+@onready var result_main_menu_button: Button = %ResultMainMenuButton
 
 var active_enemies: Array[EnemyBase] = []
 var boss_enemy: EnemyBase
@@ -70,7 +78,9 @@ func _ready() -> void:
 	_layout_combat_points()
 	_configure_runtime()
 	_connect_player_signals()
+	_connect_result_buttons()
 	player.reset_player()
+	result_layer.hide()
 	_update_hud()
 	call_deferred("_start_encounter")
 
@@ -198,12 +208,8 @@ func _wait_until_wave_clear() -> void:
 func _on_enemy_died(enemy: EnemyBase) -> void:
 	active_enemies.erase(enemy)
 	if enemy == boss_enemy and not encounter_finished:
-		encounter_finished = true
-		upgrade_system.end_run()
-		status_text = "Boss 信号核已摧毁"
 		boss_enemy = null
-		_update_hud()
-		level_won.emit("")
+		_finish_encounter(true)
 		return
 	_update_hud()
 
@@ -211,11 +217,99 @@ func _on_enemy_died(enemy: EnemyBase) -> void:
 func _on_player_died() -> void:
 	if encounter_finished:
 		return
+	_finish_encounter(false)
+
+
+func _connect_result_buttons() -> void:
+	if not result_restart_button.pressed.is_connected(_on_result_restart_pressed):
+		result_restart_button.pressed.connect(_on_result_restart_pressed)
+	if not result_main_menu_button.pressed.is_connected(_on_result_main_menu_pressed):
+		result_main_menu_button.pressed.connect(_on_result_main_menu_pressed)
+
+
+func _finish_encounter(victory: bool) -> void:
+	if encounter_finished:
+		return
 	encounter_finished = true
 	upgrade_system.end_run()
-	status_text = "信号中断"
+	status_text = "Boss 信号核已摧毁" if victory else "信号中断"
+	_stop_combat()
 	_update_hud()
-	level_lost.emit()
+	if _has_external_result_handler(victory):
+		if victory:
+			level_won.emit("")
+		else:
+			level_lost.emit()
+		return
+	_show_result_page(victory)
+
+
+func _stop_combat() -> void:
+	is_spawning = false
+	set_process(false)
+	if player != null:
+		player.set_process(false)
+		player.set_physics_process(false)
+	if wand_runtime != null:
+		wand_runtime.set_process(false)
+	for enemy in active_enemies:
+		if enemy != null and is_instance_valid(enemy):
+			enemy.set_process(false)
+			enemy.set_physics_process(false)
+	if projectile_root != null:
+		for projectile in projectile_root.get_children():
+			projectile.queue_free()
+
+
+func _has_external_result_handler(victory: bool) -> bool:
+	if victory:
+		return not get_signal_connection_list(&"level_won").is_empty()
+	return not get_signal_connection_list(&"level_lost").is_empty()
+
+
+func _show_result_page(victory: bool) -> void:
+	result_title_label.text = "作战结算：胜利" if victory else "作战结算：失败"
+	result_summary_label.text = "Boss 信号核已摧毁，信号恢复稳定。" if victory else "玩家死亡，信号链路中断。"
+	result_stats_label.text = _get_result_stats_text(victory)
+	result_layer.show()
+
+
+func _get_result_stats_text(victory: bool) -> String:
+	var current_level := 1
+	var current_exp := 0.0
+	var current_threshold := 0.0
+	if experience_system != null:
+		current_level = experience_system.current_level
+		current_exp = experience_system.current_exp
+		current_threshold = experience_system.get_current_threshold()
+	var wave_text := "Boss" if victory else _get_current_wave_text()
+	return "进度：%s\n玩家：HP %d / %d    LV %d    XP %d / %d\n金币：%d" % [
+		wave_text,
+		player.current_hp,
+		player.get_effective_max_hp(),
+		current_level,
+		floori(current_exp),
+		ceili(current_threshold),
+		player.current_gold,
+	]
+
+
+func _get_current_wave_text() -> String:
+	if current_wave_index < 0:
+		return "待命"
+	if boss_enemy != null:
+		return "Boss"
+	return "第 %d / %d 波" % [current_wave_index + 1, WAVE_DEFS.size()]
+
+
+func _on_result_restart_pressed() -> void:
+	get_tree().paused = false
+	get_tree().reload_current_scene()
+
+
+func _on_result_main_menu_pressed() -> void:
+	get_tree().paused = false
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE_PATH)
 
 
 func _on_player_hp_changed(_current_hp: int, _max_hp: int) -> void:

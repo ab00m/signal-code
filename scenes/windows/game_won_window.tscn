@@ -8,15 +8,15 @@
 custom_minimum_size = Vector2(432, 240)
 script = ExtResource("2_rvsdo")
 update_content = true
-text = "You won!"
-close_button_text = "Continue"
+text = "作战结算：胜利"
+close_button_text = "继续"
 title_visible = false
 
 [node name="TitleMargin" parent="ContentContainer/BoxContainer" parent_id_path=PackedInt32Array(394030069) index="0" unique_id=1262022916]
 visible = false
 
 [node name="DescriptionLabel" parent="ContentContainer/BoxContainer/BodyMargin" parent_id_path=PackedInt32Array(590613964) index="0" unique_id=617407155]
-text = "You won!"
+text = "作战结算：胜利"
 
 [node name="MenuButtons" parent="ContentContainer/BoxContainer/MenuButtonsMargin" parent_id_path=PackedInt32Array(1413292752) index="0" unique_id=1371114575]
 vertical = false
@@ -26,33 +26,33 @@ unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Exit"
+text = "退出"
 
 [node name="MainMenuButton" type="Button" parent="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons" index="1" unique_id=960593772]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Main Menu"
+text = "主菜单"
 
 [node name="CloseButton" parent="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons" index="2" unique_id=314526102]
 size_flags_horizontal = 3
-text = "Continue"
+text = "继续"
 
 [node name="MainMenuConfirmation" parent="." index="1" unique_id=956828714 instance=ExtResource("3_ga0ue")]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
-text = "Exit to the main menu?"
-title = "Confirm Exit"
+text = "返回主菜单？"
+title = "确认退出"
 
 [node name="ExitConfirmation" parent="." index="2" unique_id=1042600878 instance=ExtResource("3_ga0ue")]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-text = "Exit the game?"
-title = "Confirm Exit"
+text = "退出游戏？"
+title = "确认退出"
 
 [connection signal="pressed" from="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons/ExitButton" to="." method="_on_exit_button_pressed"]
 [connection signal="pressed" from="ContentContainer/BoxContainer/MenuButtonsMargin/MenuButtons/MainMenuButton" to="." method="_on_main_menu_button_pressed"]
