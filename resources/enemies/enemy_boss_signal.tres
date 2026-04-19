@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3 uid="uid://cdoknyyrq3o0s"]
+[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://cdoknyyrq3o0s"]
 
 [ext_resource type="Script" uid="uid://b3i0rbso0vtnr" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
-[ext_resource type="PackedScene" path="res://scenes/enemy/enemy_boss_01.tscn" id="2_body"]
+[ext_resource type="PackedScene" uid="uid://dorq6v6oaahqx" path="res://scenes/enemy/enemy_boss_01.tscn" id="2_body"]
 
 [resource]
 script = ExtResource("1_config")

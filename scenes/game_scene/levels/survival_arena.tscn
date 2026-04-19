@@ -143,7 +143,7 @@ text = "准备接收信号..."
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "波次：待命"
+text = "关卡：待命"
 
 [node name="EnemyLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1933691221]
 unique_name_in_owner = true

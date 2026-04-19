@@ -21,17 +21,35 @@ func configure(offer: ShopOffer, card: SpellCardData) -> void:
 		offer_id = ""
 		disabled = true
 		name_label.text = "空"
-		description_label.text = ""
+		description_label.text = "暂无商品"
 		meta_label.text = ""
 		price_label.text = ""
+		_apply_text_color(Color(0.7, 0.7, 0.7, 1.0))
 		return
 
 	offer_id = offer.offer_id
 	disabled = offer.is_purchased
 	name_label.text = card.get_display_name()
 	description_label.text = card.description
-	meta_label.text = "%s  R%d" % [card.get_category_text().to_upper(), card.rarity + 1]
+	meta_label.text = "%s  %s" % [card.get_category_text().to_upper(), card.get_rarity_text()]
 	price_label.text = "已售" if offer.is_purchased else "购买 %dG" % offer.price
+	_apply_text_color(card.get_rarity_color())
+
+
+func configure_locked(slot_index: int, unlock_level: int) -> void:
+	offer_id = ""
+	disabled = true
+	name_label.text = "未解锁"
+	description_label.text = "达到 LV %d 解锁" % unlock_level
+	meta_label.text = "商店槽 %02d" % (slot_index + 1)
+	price_label.text = "锁定"
+	_apply_text_color(Color(0.45, 0.45, 0.45, 1.0))
+
+
+func _apply_text_color(color: Color) -> void:
+	name_label.add_theme_color_override("font_color", color)
+	meta_label.add_theme_color_override("font_color", color)
+	price_label.add_theme_color_override("font_color", color)
 
 
 func _on_pressed() -> void:

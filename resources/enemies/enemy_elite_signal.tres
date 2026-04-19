@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://0151ho40cgl6"]
 
-[ext_resource type="Script" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
-[ext_resource type="PackedScene" path="res://scenes/enemy/enemy_elite_01.tscn" id="2_body"]
+[ext_resource type="Script" uid="uid://b3i0rbso0vtnr" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
+[ext_resource type="PackedScene" uid="uid://1ohfd5gevgu8" path="res://scenes/enemy/enemy_elite_01.tscn" id="2_body"]
 
 [resource]
 script = ExtResource("1_config")
@@ -15,7 +15,6 @@ separation_radius = 90.0
 separation_strength = 64.0
 knockback_multiplier = 0.75
 hit_flash_duration = 0.1
-hit_flash_intensity = 1.0
 guaranteed_xp_drop = 3
 gold_drop_chance = 1.0
 gold_drop_amount_min = 2
@@ -24,4 +23,3 @@ body_scene = ExtResource("2_body")
 body_scale = 3.0
 body_color = Color(1, 0.64, 0.18, 1)
 outline_color = Color(1, 1, 1, 0.65)
-spawn_weight = 1.0

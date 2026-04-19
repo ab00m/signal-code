@@ -6,7 +6,7 @@
 
 - 主战斗场景：`scenes/game_scene/levels/survival_arena.tscn`
 - 主战斗脚本：`scenes/game_scene/levels/survival_arena.gd`
-- 当前战斗使用的普通敌人配置：`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
+- 当前战斗使用的普通敌人配置：`resources/enemies/enemy_normal_signal.tres`、`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
 - 当前战斗使用的精英敌人配置：`resources/enemies/enemy_elite_signal.tres`
 - 当前战斗使用的 Boss 配置：`resources/enemies/enemy_boss_signal.tres`
 - 当前战斗使用的默认法杖：`resources/spells/wands/combat_default_wand.tres`
@@ -16,15 +16,17 @@
 
 位置：`scenes/game_scene/levels/survival_arena.gd`
 
-- `WAVE_DEFS`：每波敌人数和出怪间隔。
-  - `count`：该波生成多少只普通敌人。
-  - `interval`：同一波中每只敌人之间的生成间隔。
+- `LEVEL_DEFS`：10 个连续关卡的刷怪配置，第 5 关和第 10 关为 Boss 关。
+  - `spawn_interval`：常规刷怪间隔。场上敌人少于 `LOW_ENEMY_COUNT_THRESHOLD` 时，会乘以 `LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER`。
+  - `spawn_pool`：本关刷怪池，候选项使用 `config` 指向敌人配置，并用 `weight` 控制随机权重。
+  - `bursts`：本关特殊刷新列表，`time` 为第几秒触发，`count` 为一次性生成数量，可选 `config` 固定敌人类型。
+  - `duration`：关卡持续时间。未配置时使用 `DEFAULT_LEVEL_DURATION = 30.0`，第 10 关使用 `FINAL_LEVEL_DURATION = -1.0` 表示无限时长。
+  - `boss`：是否在关卡开始时生成 Boss。
 - `start_delay`：战斗开始前等待时间，可在场景 Inspector 中覆盖。
-- `wave_pause`：每波清完后的等待时间，可在场景 Inspector 中覆盖。
 - `player_left_margin`：玩家在屏幕左侧的布局位置。
 - `boss_right_margin`：Boss 出现锚点距离屏幕右侧的位置。
 
-当前流程是：按 `WAVE_DEFS` 逐波刷普通敌人，全部波次清完后生成 Boss。
+当前流程是：按 `LEVEL_DEFS` 连续推进关卡；关卡结束时不清屏、不暂停，直接进入下一关。Boss 死亡会提前结束当前 Boss 关，第 10 关 Boss 死亡后结算胜利。
 
 ## 玩家初始数据
 
@@ -72,7 +74,7 @@
 - `loadout_spell_entries`：施法栏法术。
 - `inventory_capacity`：背包容量。
 - `spell_slot_count`：施法栏数量。
-- `current_wave`：购买记录用的当前波次。
+- `current_wave`：购买记录用的当前关卡编号。
 - `spell_database`：法术数据库。
 
 商店规则位置：`scripts/shop/shop_service.gd`
@@ -144,9 +146,9 @@
 
 当前已有：
 
-- `enemy_fast_signal.tres`：疾行信号体，当前战斗普通池使用，视觉资源为 `scenes/enemy/enemy_02.tscn`。
-- `enemy_heavy_signal.tres`：厚壳信号体，当前战斗普通池使用，视觉资源为 `scenes/enemy/enemy_03.tscn`。
-- `enemy_normal_signal.tres`：普通信号体，旧普通敌人配置，当前 `survival_arena.gd` 不再使用。
+- `enemy_normal_signal.tres`：普通信号体，当前战斗刷怪池使用，视觉资源为 `scenes/enemy/enemy_01.tscn`。
+- `enemy_fast_signal.tres`：疾行信号体，当前战斗刷怪池使用，视觉资源为 `scenes/enemy/enemy_02.tscn`。
+- `enemy_heavy_signal.tres`：厚壳信号体，当前战斗刷怪池使用，视觉资源为 `scenes/enemy/enemy_03.tscn`。
 - `enemy_elite_signal.tres`：精英信号体，当前战斗精英池使用，视觉资源为 `scenes/enemy/enemy_elite_01.tscn`，必定掉落金币。
 - `enemy_boss_signal.tres`：Boss 信号核，当前战斗 Boss 使用。
 
@@ -213,7 +215,8 @@
 
 经验系统位置：`scripts/progression/experience_system.gd`
 
-- `level_thresholds = [10, 18, 28, 40, 55, 72, 90, 110, 135]`
+- `level_thresholds = [10, 20, 40, 60, 80, 100, 100, 100, 100]`
+- 10 级之后，每次升级所需经验为 `(当前等级 - 10) * 20 + 120`。
 
 当前 `survival_arena.tscn` 没有覆盖 `ExperienceSystem.level_thresholds`，所以使用脚本默认值。
 
@@ -254,17 +257,21 @@
 - 战斗商店背包容量：`survival_arena.gd` 的 `_configure_shop_state()`，改 `shop_run_state.inventory_capacity`。
 - 默认数据类兜底值：`scripts/runtime/run_state.gd` 的 `inventory_capacity`。
 
-修改每波敌人数：
+修改每关特殊刷新数量：
 
-- `survival_arena.gd` 的 `WAVE_DEFS[*].count`。
+- `survival_arena.gd` 的 `LEVEL_DEFS[*].bursts[*].count`。
 
-修改每波出怪速度：
+修改每关常规出怪速度：
 
-- `survival_arena.gd` 的 `WAVE_DEFS[*].interval`。
+- `survival_arena.gd` 的 `LEVEL_DEFS[*].spawn_interval`。
+
+修改每关刷怪池和权重：
+
+- `survival_arena.gd` 的 `LEVEL_DEFS[*].spawn_pool`。
 
 修改敌人强度和掉落：
 
-- 普通敌人：`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
+- 普通敌人：`resources/enemies/enemy_normal_signal.tres`、`resources/enemies/enemy_fast_signal.tres`、`resources/enemies/enemy_heavy_signal.tres`
 - 精英敌人：`resources/enemies/enemy_elite_signal.tres`
 - Boss：`resources/enemies/enemy_boss_signal.tres`
 - 字段包括 `max_hp`、`move_speed`、`guaranteed_xp_drop`、`gold_drop_chance`、`gold_drop_amount_min/max`。
@@ -314,8 +321,8 @@
 - 施法栏数量。
 - 默认法杖。
 - 法术数据库。
-- 波次配置。
-- 普通敌人池、精英敌人池、Boss 配置。
+- 连续关卡配置。
+- 每关刷怪池、特殊刷新、Boss 配置。
 - 升级池。
 
 这样策划调整时主要改 `.tres`，不用改脚本。

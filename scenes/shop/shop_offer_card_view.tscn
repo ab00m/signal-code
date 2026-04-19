@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scenes/shop/shop_offer_card_view.gd" id="1_card"]
 
 [node name="ShopOfferCardView" type="Button"]
-custom_minimum_size = Vector2(108, 96)
+custom_minimum_size = Vector2(92, 76)
 layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("1_card")
@@ -16,10 +16,10 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 5
-theme_override_constants/margin_top = 5
-theme_override_constants/margin_right = 5
-theme_override_constants/margin_bottom = 5
+theme_override_constants/margin_left = 3
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 3
+theme_override_constants/margin_bottom = 2
 
 [node name="VBox" type="VBoxContainer" parent="Margin"]
 layout_mode = 2
@@ -30,7 +30,7 @@ theme_override_constants/separation = 2
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 12
+theme_override_font_sizes/font_size = 9
 text = "法术"
 horizontal_alignment = 1
 autowrap_mode = 3
@@ -40,7 +40,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 7
 text = "说明"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -50,7 +50,7 @@ autowrap_mode = 3
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 9
+theme_override_font_sizes/font_size = 7
 text = "PROJECTILE R1"
 horizontal_alignment = 1
 
@@ -58,6 +58,6 @@ horizontal_alignment = 1
 unique_name_in_owner = true
 layout_mode = 2
 mouse_filter = 2
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 8
 text = "购买 2G"
 horizontal_alignment = 1

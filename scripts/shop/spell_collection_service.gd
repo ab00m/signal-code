@@ -100,14 +100,17 @@ func _can_insert_into(container: StringName) -> bool:
 	if container == CONTAINER_INVENTORY:
 		return run_state.inventory_spell_entries.size() < run_state.inventory_capacity
 	if container == CONTAINER_LOADOUT:
-		return _count_entries(run_state.loadout_spell_entries) < run_state.spell_slot_count
+		return _count_entries(run_state.loadout_spell_entries, run_state.spell_slot_count) < run_state.spell_slot_count
 	return false
 
 
-func _count_entries(list: Array[SpellEntry]) -> int:
+func _count_entries(list: Array[SpellEntry], limit: int = -1) -> int:
 	var count := 0
-	for entry in list:
-		if entry != null:
+	var entry_count := list.size()
+	if limit >= 0:
+		entry_count = mini(entry_count, limit)
+	for index in range(entry_count):
+		if list[index] != null:
 			count += 1
 	return count
 

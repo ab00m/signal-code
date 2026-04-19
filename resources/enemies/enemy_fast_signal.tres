@@ -1,27 +1,20 @@
-[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="EnemyConfig" format=3 uid="uid://bwoduhevihrrq"]
 
-[ext_resource type="Script" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
-[ext_resource type="PackedScene" path="res://scenes/enemy/enemy_02.tscn" id="2_body"]
+[ext_resource type="Script" uid="uid://b3i0rbso0vtnr" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
+[ext_resource type="PackedScene" uid="uid://cywyw2yxn87bu" path="res://scenes/enemy/enemy_02.tscn" id="2_body"]
 
 [resource]
 script = ExtResource("1_config")
 enemy_id = &"fast_signal"
 display_name = "疾行信号体"
-enemy_type = 0
 max_hp = 12.0
 move_speed = 86.0
 collision_radius = 24.0
 separation_radius = 44.0
 separation_strength = 54.0
 knockback_multiplier = 1.15
-hit_flash_duration = 0.08
-hit_flash_intensity = 1.0
-guaranteed_xp_drop = 1
 gold_drop_chance = 0.15
-gold_drop_amount_min = 1
 gold_drop_amount_max = 1
 body_scene = ExtResource("2_body")
 body_scale = 2.0
 body_color = Color(0.45, 0.8, 1, 1)
-outline_color = Color(1, 1, 1, 0.55)
-spawn_weight = 1.0

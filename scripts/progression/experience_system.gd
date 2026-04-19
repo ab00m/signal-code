@@ -5,7 +5,11 @@ signal exp_changed(current_exp: float, threshold: float)
 signal level_changed(new_level: int)
 signal level_up_requested(new_level: int)
 
-@export var level_thresholds: Array[int] = [10, 18, 28, 40, 55, 72, 90, 110, 135]
+const DYNAMIC_THRESHOLD_START_LEVEL := 10
+const DYNAMIC_THRESHOLD_BASE := 120
+const DYNAMIC_THRESHOLD_STEP := 20
+
+@export var level_thresholds: Array[int] = [10, 20, 40, 60, 80, 100, 100, 100, 100]
 
 var run_modifier_controller: RunModifierController
 var current_level: int = 1
@@ -33,11 +37,27 @@ func add_exp(amount: float) -> void:
 	exp_changed.emit(current_exp, get_current_threshold())
 
 
+func add_debug_exp_without_upgrade_requests(amount: float) -> void:
+	if amount <= 0.0:
+		return
+
+	var multiplier := 1.0
+	if run_modifier_controller != null:
+		multiplier = run_modifier_controller.get_exp_gain_multiplier()
+	current_exp += amount * multiplier
+	while current_exp >= get_current_threshold():
+		current_exp -= get_current_threshold()
+		current_level += 1
+		level_changed.emit(current_level)
+	exp_changed.emit(current_exp, get_current_threshold())
+
+
 func get_current_threshold() -> float:
-	if level_thresholds.is_empty():
-		return 1.0
-	var index := clampi(current_level - 1, 0, level_thresholds.size() - 1)
-	return float(level_thresholds[index])
+	if current_level >= 1 and current_level <= level_thresholds.size():
+		return float(level_thresholds[current_level - 1])
+
+	var dynamic_threshold := (current_level - DYNAMIC_THRESHOLD_START_LEVEL) * DYNAMIC_THRESHOLD_STEP + DYNAMIC_THRESHOLD_BASE
+	return float(maxi(1, dynamic_threshold))
 
 
 func consume_pending_level_up() -> void:

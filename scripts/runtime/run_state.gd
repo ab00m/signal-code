@@ -8,7 +8,15 @@ extends Resource
 @export var inventory_capacity: int = 20
 @export var spell_slot_count: int = 3
 @export var current_wave: int = 0
+@export var player_level: int = 1
 @export var spell_database: SpellCardDatabase
+
+const MIN_SPELL_SLOT_COUNT := 3
+const MAX_SPELL_SLOT_COUNT := 12
+
+
+func get_unlocked_spell_slot_count() -> int:
+	return clampi(player_level + MIN_SPELL_SLOT_COUNT - 1, MIN_SPELL_SLOT_COUNT, MAX_SPELL_SLOT_COUNT)
 
 
 func get_gold() -> int:
@@ -48,7 +56,8 @@ func build_wand_data_from_loadout(template_wand: WandData = null) -> WandData:
 	if spell_database == null:
 		wand.deck = deck
 		return wand
-	for entry in loadout_spell_entries:
+	for index in range(mini(spell_slot_count, loadout_spell_entries.size())):
+		var entry := loadout_spell_entries[index]
 		if entry == null:
 			continue
 		var card := spell_database.duplicate_card_for_runtime(entry.spell_id)

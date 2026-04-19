@@ -18,15 +18,20 @@ func configure(container: StringName, index: int, entry: SpellEntry, card: Spell
 	slot_index = index
 	spell_entry = entry
 	spell_card = card
-	title_label.text = "%s %02d" % [String(container).to_upper(), index + 1]
+	title_label.hide()
+	meta_label.hide()
 	if spell_entry == null or spell_card == null:
 		name_label.text = "空"
-		meta_label.text = "拖放到这里"
+		_apply_text_color(Color(0.7, 0.7, 0.7, 1.0))
 		modulate = Color(1, 1, 1, 0.7)
 	else:
 		name_label.text = spell_card.get_display_name()
-		meta_label.text = "%s  R%d" % [spell_card.get_category_text(), spell_card.rarity + 1]
+		_apply_text_color(spell_card.get_rarity_color())
 		modulate = Color(1, 1, 1, 1)
+
+
+func _apply_text_color(color: Color) -> void:
+	name_label.add_theme_color_override("font_color", color)
 
 
 func _get_drag_data(_at_position: Vector2) -> Variant:

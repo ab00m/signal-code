@@ -3,6 +3,7 @@ extends Control
 signal level_lost
 signal level_won(level_path: String)
 
+const NORMAL_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_normal_signal.tres")
 const FAST_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_fast_signal.tres")
 const HEAVY_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_heavy_signal.tres")
 const ELITE_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_elite_signal.tres")
@@ -20,10 +21,112 @@ const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgra
 const SPELL_CARD_DATABASE: SpellCardDatabase = preload("res://resources/spells/spell_card_database.tres")
 const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/combat_default_wand.tres")
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
-const WAVE_DEFS: Array[Dictionary] = [
-	{"count": 20, "interval": 0.8, "elite_count": 0},
-	{"count": 20, "interval": 0.65, "elite_count": 1},
-	{"count": 20, "interval": 0.5, "elite_count": 2},
+const LEVEL_COUNT := 10
+const DEFAULT_LEVEL_DURATION := 30.0
+const FINAL_LEVEL_DURATION := -1.0
+const LOW_ENEMY_COUNT_THRESHOLD := 10
+const LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER := 0.5
+const LEVEL_TICK_SECONDS := 0.1
+const LEVEL_DEFS: Array[Dictionary] = [
+	{
+		"spawn_interval": 1.4,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 4.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.0},
+		],
+		"bursts": [{"time": 12.0, "count": 3}],
+	},
+	{
+		"spawn_interval": 1.25,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.5},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.5},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 0.5},
+		],
+		"bursts": [{"time": 10.0, "count": 4}, {"time": 22.0, "count": 3}],
+	},
+	{
+		"spawn_interval": 1.1,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.7},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 0.8},
+		],
+		"bursts": [{"time": 15.0, "count": 5}],
+	},
+	{
+		"spawn_interval": 1.0,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.6},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.8},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.2},
+		],
+		"bursts": [{"time": 8.0, "count": 4}, {"time": 20.0, "count": 4}],
+	},
+	{
+		"boss": true,
+		"spawn_interval": 0.95,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.4},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.8},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.1},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.25},
+		],
+		"bursts": [{"time": 12.0, "count": 3, "config": HEAVY_ENEMY_CONFIG}],
+	},
+	{
+		"spawn_interval": 0.9,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 2.1},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.2},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.35},
+		],
+		"bursts": [{"time": 10.0, "count": 5}, {"time": 24.0, "count": 5}],
+	},
+	{
+		"spawn_interval": 0.82,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.8},
+			{"config": FAST_ENEMY_CONFIG, "weight": 2.2},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.4},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.45},
+		],
+		"bursts": [{"time": 9.0, "count": 4, "config": FAST_ENEMY_CONFIG}, {"time": 21.0, "count": 4, "config": HEAVY_ENEMY_CONFIG}],
+	},
+	{
+		"spawn_interval": 0.75,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.6},
+			{"config": FAST_ENEMY_CONFIG, "weight": 2.3},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.5},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.55},
+		],
+		"bursts": [{"time": 12.0, "count": 6}, {"time": 24.0, "count": 3, "config": ELITE_ENEMY_CONFIG}],
+	},
+	{
+		"spawn_interval": 0.68,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.4},
+			{"config": FAST_ENEMY_CONFIG, "weight": 2.4},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.6},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.65},
+		],
+		"bursts": [{"time": 8.0, "count": 6}, {"time": 20.0, "count": 6}],
+	},
+	{
+		"boss": true,
+		"duration": FINAL_LEVEL_DURATION,
+		"spawn_interval": 0.62,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.2},
+			{"config": FAST_ENEMY_CONFIG, "weight": 2.5},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.8},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 0.8},
+		],
+		"bursts": [{"time": 10.0, "count": 5, "config": FAST_ENEMY_CONFIG}, {"time": 25.0, "count": 4, "config": ELITE_ENEMY_CONFIG}],
+	},
 ]
 const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 	DAMAGE_UP_10,
@@ -38,7 +141,6 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 ]
 
 @export var start_delay: float = 0.8
-@export var wave_pause: float = 1.2
 @export var player_left_margin: float = 96.0
 @export var boss_right_margin: float = 112.0
 
@@ -73,8 +175,12 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var result_main_menu_button: Button = %ResultMainMenuButton
 
 var active_enemies: Array[EnemyBase] = []
+var boss_enemies: Array[EnemyBase] = []
 var boss_enemy: EnemyBase
+var current_level_boss_enemy: EnemyBase
+var final_boss_enemy: EnemyBase
 var current_wave_index: int = -1
+var current_level_elapsed: float = 0.0
 var status_text: String = "准备接收信号..."
 var encounter_finished: bool = false
 var is_spawning: bool = false
@@ -113,7 +219,7 @@ func _layout_combat_points() -> void:
 
 
 func _configure_runtime() -> void:
-	enemy_spawner.normal_configs = [FAST_ENEMY_CONFIG, HEAVY_ENEMY_CONFIG]
+	enemy_spawner.normal_configs = [NORMAL_ENEMY_CONFIG, FAST_ENEMY_CONFIG, HEAVY_ENEMY_CONFIG]
 	enemy_spawner.elite_configs = [ELITE_ENEMY_CONFIG]
 	enemy_spawner.boss_config = BOSS_ENEMY_CONFIG
 	run_modifier_controller.reset_modifiers()
@@ -142,8 +248,9 @@ func _configure_shop_state() -> void:
 	shop_run_state = RunState.new()
 	shop_run_state.spell_database = SPELL_CARD_DATABASE
 	shop_run_state.gold = player.current_gold
-	shop_run_state.inventory_capacity = 6
-	shop_run_state.spell_slot_count = 6
+	shop_run_state.inventory_capacity = 12
+	shop_run_state.player_level = experience_system.current_level
+	shop_run_state.spell_slot_count = shop_run_state.get_unlocked_spell_slot_count()
 	shop_run_state.shop_state = ShopRuntimeState.new()
 	shop_run_state.loadout_spell_entries = _build_spell_entries_from_wand(wand_runtime.wand_data)
 	shop_run_state.inventory_spell_entries = []
@@ -177,58 +284,156 @@ func _connect_shop_signals() -> void:
 		shop_button.pressed.connect(_on_shop_button_pressed)
 	if not shop_page.request_close_page.is_connected(_on_shop_closed):
 		shop_page.request_close_page.connect(_on_shop_closed)
+	if not shop_page.debug_experience_requested.is_connected(_on_shop_debug_experience_requested):
+		shop_page.debug_experience_requested.connect(_on_shop_debug_experience_requested)
 
 
 func _start_encounter() -> void:
 	status_text = "校准自动施法..."
 	await get_tree().create_timer(start_delay, false).timeout
 
-	for wave_index in range(WAVE_DEFS.size()):
+	for level_index in range(mini(LEVEL_COUNT, LEVEL_DEFS.size())):
 		if encounter_finished:
 			return
-		current_wave_index = wave_index
-		status_text = "第 %d 波接近中" % (current_wave_index + 1)
-		await _spawn_wave(WAVE_DEFS[wave_index])
-		await _wait_until_wave_clear()
-		if encounter_finished:
-			return
-		status_text = "第 %d 波清除" % (current_wave_index + 1)
-		await get_tree().create_timer(wave_pause, false).timeout
+		current_wave_index = level_index
+		await _run_level(LEVEL_DEFS[level_index])
 
-	if encounter_finished:
-		return
-	status_text = "Boss 信号核出现"
-	_spawn_boss()
+	if not encounter_finished:
+		_finish_encounter(true)
 
 
-func _spawn_wave(wave: Dictionary) -> void:
+func _run_level(level_def: Dictionary) -> void:
 	is_spawning = true
-	var enemy_count := int(wave.get("count", 0))
-	var interval := float(wave.get("interval", 0.6))
-	var elite_count := clampi(int(wave.get("elite_count", 0)), 0, enemy_count)
-	var elite_start_index := enemy_count - elite_count
+	current_level_elapsed = 0.0
+	current_level_boss_enemy = null
+	var level_number := current_wave_index + 1
+	var is_final_level := level_number == LEVEL_COUNT
+	var level_duration := float(level_def.get("duration", DEFAULT_LEVEL_DURATION))
+	var is_boss_level := bool(level_def.get("boss", false))
+	var triggered_bursts := {}
+	var spawn_countdown := _get_spawn_interval_for_current_enemy_count(level_def)
 
-	for index in range(enemy_count):
+	status_text = "第 %d 关开始" % level_number
+	if is_boss_level:
+		_spawn_level_boss(is_final_level)
+
+	while not encounter_finished:
+		if is_boss_level and current_level_boss_enemy == null:
+			break
+		if level_duration > 0.0 and current_level_elapsed >= level_duration:
+			break
+
+		await get_tree().create_timer(LEVEL_TICK_SECONDS, false).timeout
 		if encounter_finished:
-			is_spawning = false
-			return
-		var enemy: EnemyBase
-		if index >= elite_start_index:
-			enemy = enemy_spawner.spawn_elite()
-		else:
-			enemy = enemy_spawner.spawn_normal_random_y()
-		_register_enemy(enemy)
-		if index < enemy_count - 1:
-			await get_tree().create_timer(interval, false).timeout
+			break
+
+		current_level_elapsed += LEVEL_TICK_SECONDS
+		_process_level_bursts(level_def, triggered_bursts)
+		spawn_countdown -= LEVEL_TICK_SECONDS
+		if spawn_countdown <= 0.0:
+			_spawn_level_pool_enemy(level_def)
+			spawn_countdown = _get_spawn_interval_for_current_enemy_count(level_def)
 
 	is_spawning = false
+	if not encounter_finished:
+		status_text = "第 %d 关结束" % level_number
 
 
-func _spawn_boss() -> void:
-	boss_enemy = enemy_spawner.spawn_boss(null, boss_spawn)
-	_register_enemy(boss_enemy)
-	if boss_enemy != null and not boss_enemy.damaged.is_connected(_on_boss_damaged):
-		boss_enemy.damaged.connect(_on_boss_damaged)
+func _spawn_level_boss(is_final_level: bool) -> void:
+	current_level_boss_enemy = enemy_spawner.spawn_boss(BOSS_ENEMY_CONFIG, boss_spawn)
+	boss_enemy = current_level_boss_enemy
+	if current_level_boss_enemy != null:
+		boss_enemies.append(current_level_boss_enemy)
+		if is_final_level:
+			final_boss_enemy = current_level_boss_enemy
+	_register_enemy(current_level_boss_enemy)
+	if current_level_boss_enemy != null and not current_level_boss_enemy.damaged.is_connected(_on_boss_damaged):
+		current_level_boss_enemy.damaged.connect(_on_boss_damaged)
+
+
+func _spawn_level_pool_enemy(level_def: Dictionary) -> void:
+	var enemy_config := _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
+	_register_enemy(enemy_spawner.spawn_normal_random_y(enemy_config))
+
+
+func _process_level_bursts(level_def: Dictionary, triggered_bursts: Dictionary) -> void:
+	var bursts := _get_level_bursts(level_def)
+	for burst_index in range(bursts.size()):
+		if triggered_bursts.has(burst_index):
+			continue
+		var burst = bursts[burst_index]
+		if not (burst is Dictionary):
+			continue
+		if current_level_elapsed >= float(burst.get("time", 0.0)):
+			triggered_bursts[burst_index] = true
+			_spawn_level_burst(burst, level_def)
+
+
+func _spawn_level_burst(burst: Dictionary, level_def: Dictionary) -> void:
+	var count := maxi(0, int(burst.get("count", 0)))
+	var configured_enemy := burst.get("config", null) as EnemyConfig
+	for _index in range(count):
+		var enemy_config := configured_enemy
+		if enemy_config == null:
+			enemy_config = _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
+		_register_enemy(enemy_spawner.spawn_normal_random_y(enemy_config))
+
+
+func _get_spawn_interval_for_current_enemy_count(level_def: Dictionary) -> float:
+	var interval := maxf(0.05, float(level_def.get("spawn_interval", 1.0)))
+	if _get_alive_enemy_count() < LOW_ENEMY_COUNT_THRESHOLD:
+		interval *= LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER
+	return interval
+
+
+func _get_spawn_pool(level_def: Dictionary) -> Array:
+	var pool_value: Variant = level_def.get("spawn_pool", [])
+	if pool_value is Array:
+		return pool_value
+	return []
+
+
+func _get_level_bursts(level_def: Dictionary) -> Array:
+	var bursts_value: Variant = level_def.get("bursts", [])
+	if bursts_value is Array:
+		return bursts_value
+	return []
+
+
+func _pick_enemy_config_from_pool(pool: Array) -> EnemyConfig:
+	var total_weight := 0.0
+	for entry in pool:
+		if not (entry is Dictionary):
+			continue
+		var enemy_config := entry.get("config", null) as EnemyConfig
+		if enemy_config != null:
+			total_weight += maxf(0.0, float(entry.get("weight", 1.0)))
+
+	if total_weight <= 0.0:
+		return _get_first_enemy_config_from_pool(pool)
+
+	var roll := randf() * total_weight
+	for entry in pool:
+		if not (entry is Dictionary):
+			continue
+		var enemy_config := entry.get("config", null) as EnemyConfig
+		if enemy_config == null:
+			continue
+		roll -= maxf(0.0, float(entry.get("weight", 1.0)))
+		if roll <= 0.0:
+			return enemy_config
+
+	return _get_first_enemy_config_from_pool(pool)
+
+
+func _get_first_enemy_config_from_pool(pool: Array) -> EnemyConfig:
+	for entry in pool:
+		if not (entry is Dictionary):
+			continue
+		var enemy_config := entry.get("config", null) as EnemyConfig
+		if enemy_config != null:
+			return enemy_config
+	return null
 
 
 func _register_enemy(enemy: EnemyBase) -> void:
@@ -240,15 +445,15 @@ func _register_enemy(enemy: EnemyBase) -> void:
 	_update_hud()
 
 
-func _wait_until_wave_clear() -> void:
-	while not encounter_finished and (_get_alive_enemy_count() > 0 or is_spawning):
-		await get_tree().create_timer(0.2, false).timeout
-
-
 func _on_enemy_died(enemy: EnemyBase) -> void:
 	active_enemies.erase(enemy)
-	if enemy == boss_enemy and not encounter_finished:
-		boss_enemy = null
+	boss_enemies.erase(enemy)
+	if enemy == current_level_boss_enemy:
+		current_level_boss_enemy = null
+	if enemy == boss_enemy:
+		boss_enemy = _get_latest_alive_boss()
+	if enemy == final_boss_enemy and not encounter_finished:
+		final_boss_enemy = null
 		_finish_encounter(true)
 		return
 	_update_hud()
@@ -339,9 +544,11 @@ func _get_result_stats_text(victory: bool) -> String:
 func _get_current_wave_text() -> String:
 	if current_wave_index < 0:
 		return "待命"
-	if boss_enemy != null:
-		return "Boss"
-	return "第 %d / %d 波" % [current_wave_index + 1, WAVE_DEFS.size()]
+	if final_boss_enemy != null:
+		return "最终 Boss"
+	if current_level_boss_enemy != null:
+		return "Boss 关"
+	return "第 %d / %d 关" % [current_wave_index + 1, LEVEL_COUNT]
 
 
 func _on_result_restart_pressed() -> void:
@@ -375,9 +582,18 @@ func _on_shop_closed() -> void:
 	_update_hud()
 
 
+func _on_shop_debug_experience_requested(amount: int) -> void:
+	experience_system.add_debug_exp_without_upgrade_requests(float(amount))
+	_sync_shop_run_state_from_combat()
+	shop_page.refresh_current_state("调试：+%d经验" % amount)
+	_update_hud()
+
+
 func _sync_shop_run_state_from_combat() -> void:
 	shop_run_state.gold = player.current_gold
 	shop_run_state.current_wave = maxi(0, current_wave_index + 1)
+	shop_run_state.player_level = experience_system.current_level
+	shop_run_state.spell_slot_count = shop_run_state.get_unlocked_spell_slot_count()
 
 
 func _apply_saved_shop_wand() -> void:
@@ -435,6 +651,15 @@ func _on_upgrade_applied(_option_id: StringName) -> void:
 	_update_hud()
 
 
+func _get_latest_alive_boss() -> EnemyBase:
+	for index in range(boss_enemies.size() - 1, -1, -1):
+		var enemy := boss_enemies[index]
+		if _is_alive_enemy(enemy):
+			return enemy
+		boss_enemies.remove_at(index)
+	return null
+
+
 func _get_alive_enemy_count() -> int:
 	_cleanup_active_enemies()
 	var count := 0
@@ -455,17 +680,33 @@ func _is_alive_enemy(enemy: EnemyBase) -> bool:
 	return enemy != null and is_instance_valid(enemy) and not enemy.is_queued_for_deletion() and not enemy.is_dead
 
 
+func _get_current_level_timer_text() -> String:
+	if current_wave_index < 0 or current_wave_index >= LEVEL_DEFS.size():
+		return ""
+
+	var level_def := LEVEL_DEFS[current_wave_index]
+	var duration := float(level_def.get("duration", DEFAULT_LEVEL_DURATION))
+	if duration <= 0.0:
+		return "倒计时：无限"
+
+	var remaining := maxi(0, ceili(duration - current_level_elapsed))
+	return "倒计时：%ds" % remaining
+
+
 func _update_hud() -> void:
 	if title_label == null:
 		return
 
 	title_label.text = status_text
-	if current_wave_index >= 0 and boss_enemy == null:
-		wave_label.text = "波次：%d / %d" % [current_wave_index + 1, WAVE_DEFS.size()]
-	elif boss_enemy != null:
-		wave_label.text = "波次：Boss"
+	var timer_text := _get_current_level_timer_text()
+	if current_wave_index >= 0 and final_boss_enemy != null:
+		wave_label.text = "关卡：%d / %d  最终 Boss  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
+	elif current_wave_index >= 0 and current_level_boss_enemy != null:
+		wave_label.text = "关卡：%d / %d  Boss  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
+	elif current_wave_index >= 0:
+		wave_label.text = "关卡：%d / %d  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
 	else:
-		wave_label.text = "波次：待命"
+		wave_label.text = "关卡：待命"
 
 	enemy_label.text = "场上敌人：%d" % _get_alive_enemy_count()
 	var current_level := 1
@@ -489,6 +730,8 @@ func _update_hud() -> void:
 
 func _get_boss_text() -> String:
 	if boss_enemy == null or not _is_alive_enemy(boss_enemy):
+		boss_enemy = _get_latest_alive_boss()
+	if boss_enemy == null:
 		return "Boss：未出现"
 	var max_hp := 1.0
 	if boss_enemy.config != null:
