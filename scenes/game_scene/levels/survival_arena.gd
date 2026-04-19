@@ -15,12 +15,13 @@ const EXP_GAIN_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/ex
 const MAX_HP_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/max_hp_up_1.tres")
 const HEAL_1: UpgradeOptionConfig = preload("res://resources/upgrades/heal_1.tres")
 const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgrades/fallback_damage_up_5.tres")
+const SPELL_CARD_DATABASE: SpellCardDatabase = preload("res://resources/spells/spell_card_database.tres")
 const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/combat_default_wand.tres")
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const WAVE_DEFS: Array[Dictionary] = [
-	{"count": 3, "interval": 0.8},
-	{"count": 5, "interval": 0.65},
-	{"count": 7, "interval": 0.5},
+	{"count": 20, "interval": 0.8},
+	{"count": 20, "interval": 0.65},
+	{"count": 20, "interval": 0.5},
 ]
 const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 	DAMAGE_UP_10,
@@ -59,6 +60,9 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var player_label: Label = %PlayerLabel
 @onready var boss_label: Label = %BossLabel
 @onready var hint_label: Label = %HintLabel
+@onready var shop_button: Button = %ShopButton
+@onready var shop_layer: CanvasLayer = %ShopLayer
+@onready var shop_page: ShopPage = %ShopPage
 @onready var result_layer: CanvasLayer = %ResultLayer
 @onready var result_title_label: Label = %ResultTitleLabel
 @onready var result_summary_label: Label = %ResultSummaryLabel
@@ -72,6 +76,8 @@ var current_wave_index: int = -1
 var status_text: String = "准备接收信号..."
 var encounter_finished: bool = false
 var is_spawning: bool = false
+var shop_run_state: RunState
+var was_tree_paused_before_shop: bool = false
 
 
 func _ready() -> void:
@@ -81,6 +87,9 @@ func _ready() -> void:
 	_connect_player_signals()
 	_connect_result_buttons()
 	player.reset_player()
+	_configure_shop_state()
+	_connect_shop_signals()
+	shop_layer.hide()
 	result_layer.hide()
 	_update_hud()
 	call_deferred("_start_encounter")
@@ -124,6 +133,18 @@ func _configure_runtime() -> void:
 	_connect_progression_signals()
 
 
+func _configure_shop_state() -> void:
+	shop_run_state = RunState.new()
+	shop_run_state.spell_database = SPELL_CARD_DATABASE
+	shop_run_state.gold = player.current_gold
+	shop_run_state.inventory_capacity = 6
+	shop_run_state.spell_slot_count = 6
+	shop_run_state.shop_state = ShopRuntimeState.new()
+	shop_run_state.loadout_spell_entries = _build_spell_entries_from_wand(wand_runtime.wand_data)
+	shop_run_state.inventory_spell_entries = []
+	shop_page.configure(shop_run_state)
+
+
 func _connect_player_signals() -> void:
 	if not player.died.is_connected(_on_player_died):
 		player.died.connect(_on_player_died)
@@ -144,6 +165,13 @@ func _connect_progression_signals() -> void:
 		run_modifier_controller.modifier_changed.connect(_on_modifier_changed)
 	if not upgrade_system.upgrade_applied.is_connected(_on_upgrade_applied):
 		upgrade_system.upgrade_applied.connect(_on_upgrade_applied)
+
+
+func _connect_shop_signals() -> void:
+	if not shop_button.pressed.is_connected(_on_shop_button_pressed):
+		shop_button.pressed.connect(_on_shop_button_pressed)
+	if not shop_page.request_close_page.is_connected(_on_shop_closed):
+		shop_page.request_close_page.connect(_on_shop_closed)
 
 
 func _start_encounter() -> void:
@@ -232,6 +260,8 @@ func _finish_encounter(victory: bool) -> void:
 	if encounter_finished:
 		return
 	encounter_finished = true
+	shop_button.disabled = true
+	shop_layer.hide()
 	upgrade_system.end_run()
 	status_text = "Boss 信号核已摧毁" if victory else "信号中断"
 	_stop_combat()
@@ -313,6 +343,51 @@ func _on_result_main_menu_pressed() -> void:
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE_PATH)
 
 
+func _on_shop_button_pressed() -> void:
+	if encounter_finished or shop_run_state == null:
+		return
+	_sync_shop_run_state_from_combat()
+	shop_page.configure(shop_run_state)
+	shop_layer.show()
+	shop_button.disabled = true
+	was_tree_paused_before_shop = get_tree().paused
+	get_tree().paused = true
+
+
+func _on_shop_closed() -> void:
+	_apply_saved_shop_wand()
+	if shop_run_state != null:
+		player.current_gold = shop_run_state.gold
+	shop_layer.hide()
+	get_tree().paused = was_tree_paused_before_shop
+	shop_button.disabled = false
+	_update_hud()
+
+
+func _sync_shop_run_state_from_combat() -> void:
+	shop_run_state.gold = player.current_gold
+	shop_run_state.current_wave = maxi(0, current_wave_index + 1)
+
+
+func _apply_saved_shop_wand() -> void:
+	var saved_wand := shop_page.get_saved_wand_data()
+	if saved_wand == null:
+		return
+	wand_runtime.wand_data = saved_wand
+	wand_runtime.reset_runtime()
+
+
+func _build_spell_entries_from_wand(wand: WandData) -> Array[SpellEntry]:
+	var entries: Array[SpellEntry] = []
+	if wand == null:
+		return entries
+	for card in wand.deck:
+		if card == null or card.id == &"":
+			continue
+		entries.append(SpellEntry.create(card.id, &"combat_start", 0))
+	return entries
+
+
 func _on_player_hp_changed(_current_hp: int, _max_hp: int) -> void:
 	_update_hud()
 
@@ -322,6 +397,8 @@ func _on_player_xp_changed(_current_xp: int) -> void:
 
 
 func _on_player_gold_changed(_current_gold: int) -> void:
+	if shop_run_state != null:
+		shop_run_state.gold = _current_gold
 	_update_hud()
 
 

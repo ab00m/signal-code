@@ -1,19 +1,20 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene format=3 uid="uid://cvslww5aa63ul"]
 
-[ext_resource type="Script" path="res://scenes/game_scene/levels/survival_arena.gd" id="1_arena"]
-[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
-[ext_resource type="Script" path="res://scripts/combat/enemy_locator.gd" id="3_locator"]
-[ext_resource type="Script" path="res://scripts/combat/screen_clear_service.gd" id="4_clear"]
-[ext_resource type="Script" path="res://scripts/systems/game_settings.gd" id="5_settings"]
-[ext_resource type="Script" path="res://scripts/spell/projectiles/projectile_factory.gd" id="6_factory"]
-[ext_resource type="Script" path="res://scripts/spell/runtime/wand_runtime.gd" id="7_wand"]
-[ext_resource type="Script" path="res://scripts/combat/enemies/enemy_spawner.gd" id="8_spawner"]
-[ext_resource type="Script" path="res://scripts/progression/run_modifier_controller.gd" id="9_runmod"]
-[ext_resource type="Script" path="res://scripts/progression/experience_system.gd" id="10_exp"]
-[ext_resource type="Script" path="res://scripts/progression/upgrade_system.gd" id="11_upgrade"]
+[ext_resource type="Script" uid="uid://umied5hbg5d0" path="res://scenes/game_scene/levels/survival_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" uid="uid://c0b3clsaio2qu" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://p20hkn6awaj1" path="res://scripts/combat/enemy_locator.gd" id="3_locator"]
+[ext_resource type="Script" uid="uid://b7ddqjblw1hs2" path="res://scripts/combat/screen_clear_service.gd" id="4_clear"]
+[ext_resource type="Script" uid="uid://bnpqsdxrni07a" path="res://scripts/systems/game_settings.gd" id="5_settings"]
+[ext_resource type="Script" uid="uid://bp25xrsny3ya3" path="res://scripts/spell/projectiles/projectile_factory.gd" id="6_factory"]
+[ext_resource type="Script" uid="uid://d102dt8x26gi" path="res://scripts/spell/runtime/wand_runtime.gd" id="7_wand"]
+[ext_resource type="Script" uid="uid://c1mhmn1enjwqu" path="res://scripts/combat/enemies/enemy_spawner.gd" id="8_spawner"]
+[ext_resource type="Script" uid="uid://vstumgvaclgj" path="res://scripts/progression/run_modifier_controller.gd" id="9_runmod"]
+[ext_resource type="Script" uid="uid://biu7nbihjh874" path="res://scripts/progression/experience_system.gd" id="10_exp"]
+[ext_resource type="Script" uid="uid://dxos8axqjpvvy" path="res://scripts/progression/upgrade_system.gd" id="11_upgrade"]
 [ext_resource type="PackedScene" path="res://scenes/upgrade/upgrade_selection_panel.tscn" id="12_panel"]
+[ext_resource type="PackedScene" path="res://scenes/shop/shop_page.tscn" id="13_shop"]
 
-[node name="SurvivalArena" type="Control"]
+[node name="SurvivalArena" type="Control" unique_id=1738385454]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,7 +23,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_arena")
 
-[node name="BackgroundColor" type="ColorRect" parent="."]
+[node name="BackgroundColor" type="ColorRect" parent="." unique_id=1005314066]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,7 +32,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.045, 0.052, 0.065, 1)
 
-[node name="BackgroundSprite" type="TextureRect" parent="."]
+[node name="BackgroundSprite" type="TextureRect" parent="." unique_id=364755081]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -41,23 +42,23 @@ grow_vertical = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="WorldRoot" type="Node2D" parent="."]
+[node name="WorldRoot" type="Node2D" parent="." unique_id=2039866798]
 
-[node name="ProjectileRoot" type="Node2D" parent="WorldRoot"]
+[node name="ProjectileRoot" type="Node2D" parent="WorldRoot" unique_id=1450416115]
 unique_name_in_owner = true
 
-[node name="EnemyRoot" type="Node2D" parent="WorldRoot"]
+[node name="EnemyRoot" type="Node2D" parent="WorldRoot" unique_id=1633536748]
 unique_name_in_owner = true
 
-[node name="PlayerSpawn" type="Marker2D" parent="WorldRoot"]
+[node name="PlayerSpawn" type="Marker2D" parent="WorldRoot" unique_id=1107948227]
 unique_name_in_owner = true
 position = Vector2(96, 180)
 
-[node name="BossSpawn" type="Marker2D" parent="WorldRoot"]
+[node name="BossSpawn" type="Marker2D" parent="WorldRoot" unique_id=416726906]
 unique_name_in_owner = true
 position = Vector2(528, 180)
 
-[node name="Player" parent="WorldRoot" instance=ExtResource("2_player")]
+[node name="Player" parent="WorldRoot" unique_id=1247773012 instance=ExtResource("2_player")]
 unique_name_in_owner = true
 position = Vector2(96, 180)
 max_hp = 5
@@ -67,43 +68,42 @@ wand_runtime_path = NodePath("../WandRuntime")
 screen_clear_service_path = NodePath("../ScreenClearService")
 settings_path = NodePath("../GameSettings")
 
-[node name="EnemyLocator" type="Node" parent="WorldRoot"]
+[node name="EnemyLocator" type="Node" parent="WorldRoot" unique_id=511809368]
 unique_name_in_owner = true
 script = ExtResource("3_locator")
 
-[node name="ScreenClearService" type="Node" parent="WorldRoot"]
+[node name="ScreenClearService" type="Node" parent="WorldRoot" unique_id=416479603]
 unique_name_in_owner = true
 script = ExtResource("4_clear")
 
-[node name="GameSettings" type="Node" parent="WorldRoot"]
+[node name="GameSettings" type="Node" parent="WorldRoot" unique_id=854305852]
 unique_name_in_owner = true
 script = ExtResource("5_settings")
-auto_aim_enabled = true
 
-[node name="RunModifierController" type="Node" parent="WorldRoot"]
+[node name="RunModifierController" type="Node" parent="WorldRoot" unique_id=24968709]
 unique_name_in_owner = true
 script = ExtResource("9_runmod")
 
-[node name="ExperienceSystem" type="Node" parent="WorldRoot"]
+[node name="ExperienceSystem" type="Node" parent="WorldRoot" unique_id=1529780728]
 unique_name_in_owner = true
 script = ExtResource("10_exp")
 
-[node name="UpgradeSystem" type="Node" parent="WorldRoot"]
-process_mode = 3
+[node name="UpgradeSystem" type="Node" parent="WorldRoot" unique_id=442538602]
 unique_name_in_owner = true
+process_mode = 3
 script = ExtResource("11_upgrade")
 
-[node name="ProjectileFactory" type="Node" parent="WorldRoot"]
+[node name="ProjectileFactory" type="Node" parent="WorldRoot" unique_id=1615627174]
 unique_name_in_owner = true
 script = ExtResource("6_factory")
 projectile_parent_path = NodePath("../ProjectileRoot")
 
-[node name="WandRuntime" type="Node" parent="WorldRoot"]
+[node name="WandRuntime" type="Node" parent="WorldRoot" unique_id=777754402]
 unique_name_in_owner = true
 script = ExtResource("7_wand")
 projectile_factory_path = NodePath("../ProjectileFactory")
 
-[node name="EnemySpawner" type="Node" parent="WorldRoot"]
+[node name="EnemySpawner" type="Node" parent="WorldRoot" unique_id=943568340]
 unique_name_in_owner = true
 script = ExtResource("8_spawner")
 enemy_parent_path = NodePath("../EnemyRoot")
@@ -114,71 +114,99 @@ boss_reset_anchor_path = NodePath("../BossSpawn")
 spawn_margin = 80.0
 vertical_padding = 52.0
 
-[node name="Hud" type="CanvasLayer" parent="."]
+[node name="Hud" type="CanvasLayer" parent="." unique_id=1708287905]
 
-[node name="InfoPanel" type="PanelContainer" parent="Hud"]
+[node name="InfoPanel" type="PanelContainer" parent="Hud" unique_id=104783169]
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 308.0
 offset_bottom = 144.0
 
-[node name="Margin" type="MarginContainer" parent="Hud/InfoPanel"]
+[node name="Margin" type="MarginContainer" parent="Hud/InfoPanel" unique_id=1424792129]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Hud/InfoPanel/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Hud/InfoPanel/Margin" unique_id=1824041992]
 layout_mode = 2
 theme_override_constants/separation = 2
 
-[node name="TitleLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="TitleLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1578711560]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
 text = "准备接收信号..."
 
-[node name="WaveLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="WaveLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1407354960]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "波次：待命"
 
-[node name="EnemyLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="EnemyLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1933691221]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "场上敌人：0"
 
-[node name="PlayerLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="PlayerLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=56337033]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "玩家 HP：5 / 5    XP：0    金币：0"
 
-[node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=452943790]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Boss：未出现"
 
-[node name="HintLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+[node name="HintLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=297402975]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "玩家固定在左侧，自动锁定最近敌人。"
 
-[node name="UpgradeSelectionPanel" parent="." instance=ExtResource("12_panel")]
+[node name="ShopButton" type="Button" parent="Hud" unique_id=2112704093]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -112.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 40.0
+text = "商店"
+
+[node name="UpgradeSelectionPanel" parent="." unique_id=1167567643 instance=ExtResource("12_panel")]
 unique_name_in_owner = true
 
-[node name="ResultLayer" type="CanvasLayer" parent="."]
+[node name="ShopLayer" type="CanvasLayer" parent="." unique_id=1880430093]
+unique_name_in_owner = true
 process_mode = 3
-unique_name_in_owner = true
+layer = 80
 visible = false
-layer = 96
 
-[node name="Overlay" type="ColorRect" parent="ResultLayer"]
+[node name="Overlay" type="ColorRect" parent="ShopLayer" unique_id=1068240139]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.02, 0.025, 0.035, 0.72)
+
+[node name="ShopPage" parent="ShopLayer" unique_id=1871130895 instance=ExtResource("13_shop")]
+unique_name_in_owner = true
+
+[node name="ResultLayer" type="CanvasLayer" parent="." unique_id=1106322208]
+unique_name_in_owner = true
+process_mode = 3
+layer = 96
+visible = false
+
+[node name="Overlay" type="ColorRect" parent="ResultLayer" unique_id=1537326382]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -186,7 +214,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.025, 0.035, 0.88)
 
-[node name="Center" type="CenterContainer" parent="ResultLayer"]
+[node name="Center" type="CenterContainer" parent="ResultLayer" unique_id=975022700]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -194,29 +222,29 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Panel" type="PanelContainer" parent="ResultLayer/Center"]
+[node name="Panel" type="PanelContainer" parent="ResultLayer/Center" unique_id=1460816435]
 custom_minimum_size = Vector2(520, 240)
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="ResultLayer/Center/Panel"]
+[node name="Margin" type="MarginContainer" parent="ResultLayer/Center/Panel" unique_id=1671888521]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 14
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 14
 
-[node name="VBoxContainer" type="VBoxContainer" parent="ResultLayer/Center/Panel/Margin"]
+[node name="VBoxContainer" type="VBoxContainer" parent="ResultLayer/Center/Panel/Margin" unique_id=932822828]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="ResultTitleLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer"]
+[node name="ResultTitleLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer" unique_id=1836726960]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 text = "作战结算"
 horizontal_alignment = 1
 
-[node name="ResultSummaryLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer"]
+[node name="ResultSummaryLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer" unique_id=652695338]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
@@ -224,7 +252,7 @@ text = "信号已停止。"
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="ResultStatsLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer"]
+[node name="ResultStatsLabel" type="Label" parent="ResultLayer/Center/Panel/Margin/VBoxContainer" unique_id=591888052]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
@@ -233,18 +261,18 @@ text = "进度：待命"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Buttons" type="HBoxContainer" parent="ResultLayer/Center/Panel/Margin/VBoxContainer"]
+[node name="Buttons" type="HBoxContainer" parent="ResultLayer/Center/Panel/Margin/VBoxContainer" unique_id=1022149270]
 layout_mode = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="ResultRestartButton" type="Button" parent="ResultLayer/Center/Panel/Margin/VBoxContainer/Buttons"]
+[node name="ResultRestartButton" type="Button" parent="ResultLayer/Center/Panel/Margin/VBoxContainer/Buttons" unique_id=560976701]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 32)
 layout_mode = 2
 text = "重新开始"
 
-[node name="ResultMainMenuButton" type="Button" parent="ResultLayer/Center/Panel/Margin/VBoxContainer/Buttons"]
+[node name="ResultMainMenuButton" type="Button" parent="ResultLayer/Center/Panel/Margin/VBoxContainer/Buttons" unique_id=1691661099]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 32)
 layout_mode = 2

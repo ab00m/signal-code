@@ -74,7 +74,7 @@ func bind_dependencies(
 func reset_player() -> void:
 	current_hp = maxi(1, get_effective_max_hp())
 	current_xp = 0
-	current_gold = 0
+	current_gold = 100
 	is_dead = false
 	cast_cd_timer = 0.0
 	hurt_invincible_timer = 0.0

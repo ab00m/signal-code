@@ -58,7 +58,7 @@ func _show_level_select_if_set() -> void:
 
 func _show_continue_if_set() -> void:
 	if GameState.get_current_level_path().is_empty(): return
-	continue_game_button.show()
+	#continue_game_button.show()
 
 func _ready() -> void:
 	super._ready()
