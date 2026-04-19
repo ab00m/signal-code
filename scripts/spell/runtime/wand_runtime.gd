@@ -6,6 +6,7 @@ extends Node
 @export var debug_enabled: bool = true
 
 var projectile_factory: ProjectileFactory
+var run_modifier_controller: RunModifierController
 var last_debug_lines: Array[String] = []
 
 var _deck_index: int = 0
@@ -28,6 +29,7 @@ func cast_once(caster: Node, origin: Vector2, direction: Vector2) -> Array[Spawn
 		return empty_results
 
 	var resolver := SpellResolver.new()
+	resolver.run_modifier_controller = run_modifier_controller
 	var requests := resolver.resolve_main_cast(self, origin, direction)
 	last_debug_lines = resolver.debug_lines.duplicate()
 

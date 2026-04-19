@@ -5,10 +5,31 @@ signal level_won(level_path: String)
 
 const NORMAL_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_normal_signal.tres")
 const BOSS_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_boss_signal.tres")
+const DAMAGE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/damage_up_10.tres")
+const CAST_RATE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/cast_rate_up_10.tres")
+const PROJECTILE_SPEED_UP_15: UpgradeOptionConfig = preload("res://resources/upgrades/projectile_speed_up_15.tres")
+const KNOCKBACK_UP_20: UpgradeOptionConfig = preload("res://resources/upgrades/knockback_up_20.tres")
+const AOE_UP_15: UpgradeOptionConfig = preload("res://resources/upgrades/aoe_up_15.tres")
+const GOLD_DROP_CHANCE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/gold_drop_chance_up_10.tres")
+const EXP_GAIN_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/exp_gain_up_10.tres")
+const MAX_HP_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/max_hp_up_1.tres")
+const HEAL_1: UpgradeOptionConfig = preload("res://resources/upgrades/heal_1.tres")
+const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgrades/fallback_damage_up_5.tres")
 const WAVE_DEFS: Array[Dictionary] = [
 	{"count": 3, "interval": 0.8},
 	{"count": 5, "interval": 0.65},
 	{"count": 7, "interval": 0.5},
+]
+const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
+	DAMAGE_UP_10,
+	CAST_RATE_UP_10,
+	PROJECTILE_SPEED_UP_15,
+	KNOCKBACK_UP_20,
+	AOE_UP_15,
+	GOLD_DROP_CHANCE_UP_10,
+	EXP_GAIN_UP_10,
+	MAX_HP_UP_1,
+	HEAL_1,
 ]
 
 @export var start_delay: float = 0.8
@@ -22,6 +43,10 @@ const WAVE_DEFS: Array[Dictionary] = [
 @onready var enemy_locator: EnemyLocator = %EnemyLocator
 @onready var screen_clear_service: ScreenClearService = %ScreenClearService
 @onready var settings: GameSettings = %GameSettings
+@onready var run_modifier_controller: RunModifierController = %RunModifierController
+@onready var experience_system: ExperienceSystem = %ExperienceSystem
+@onready var upgrade_system: UpgradeSystem = %UpgradeSystem
+@onready var upgrade_panel: UpgradeSelectionPanel = %UpgradeSelectionPanel
 @onready var projectile_factory: ProjectileFactory = %ProjectileFactory
 @onready var wand_runtime: WandRuntime = %WandRuntime
 @onready var enemy_spawner: EnemySpawner = %EnemySpawner
@@ -66,9 +91,25 @@ func _layout_combat_points() -> void:
 
 
 func _configure_runtime() -> void:
+	run_modifier_controller.reset_modifiers()
+	experience_system.run_modifier_controller = run_modifier_controller
+	experience_system.reset_progression()
+	upgrade_system.upgrade_options = UPGRADE_POOL.duplicate()
+	upgrade_system.fallback_option = FALLBACK_DAMAGE_UP_5
+	upgrade_system.reset_run()
+	upgrade_system.bind_dependencies(experience_system, run_modifier_controller, upgrade_panel, player)
 	wand_runtime.wand_data = _build_default_wand()
 	wand_runtime.projectile_factory = projectile_factory
-	player.bind_dependencies(enemy_locator, wand_runtime, screen_clear_service, settings)
+	wand_runtime.run_modifier_controller = run_modifier_controller
+	player.bind_dependencies(
+		enemy_locator,
+		wand_runtime,
+		screen_clear_service,
+		settings,
+		run_modifier_controller,
+		experience_system
+	)
+	_connect_progression_signals()
 
 
 func _connect_player_signals() -> void:
@@ -80,6 +121,17 @@ func _connect_player_signals() -> void:
 		player.xp_changed.connect(_on_player_xp_changed)
 	if not player.gold_changed.is_connected(_on_player_gold_changed):
 		player.gold_changed.connect(_on_player_gold_changed)
+
+
+func _connect_progression_signals() -> void:
+	if not experience_system.exp_changed.is_connected(_on_experience_changed):
+		experience_system.exp_changed.connect(_on_experience_changed)
+	if not experience_system.level_changed.is_connected(_on_level_changed):
+		experience_system.level_changed.connect(_on_level_changed)
+	if not run_modifier_controller.modifier_changed.is_connected(_on_modifier_changed):
+		run_modifier_controller.modifier_changed.connect(_on_modifier_changed)
+	if not upgrade_system.upgrade_applied.is_connected(_on_upgrade_applied):
+		upgrade_system.upgrade_applied.connect(_on_upgrade_applied)
 
 
 func _start_encounter() -> void:
@@ -158,6 +210,7 @@ func _on_player_died() -> void:
 	if encounter_finished:
 		return
 	encounter_finished = true
+	upgrade_system.reset_run()
 	status_text = "信号中断"
 	_update_hud()
 	level_lost.emit()
@@ -176,6 +229,24 @@ func _on_player_gold_changed(_current_gold: int) -> void:
 
 
 func _on_boss_damaged(_enemy: EnemyBase, _damage: float, _current_hp: float) -> void:
+	_update_hud()
+
+
+func _on_experience_changed(_current_exp: float, _threshold: float) -> void:
+	player.current_xp = floori(_current_exp)
+	_update_hud()
+
+
+func _on_level_changed(_new_level: int) -> void:
+	_update_hud()
+
+
+func _on_modifier_changed(_target_key: StringName) -> void:
+	player.sync_runtime_modifiers()
+	_update_hud()
+
+
+func _on_upgrade_applied(_option_id: StringName) -> void:
 	_update_hud()
 
 
@@ -212,10 +283,19 @@ func _update_hud() -> void:
 		wave_label.text = "波次：待命"
 
 	enemy_label.text = "场上敌人：%d" % _get_alive_enemy_count()
-	player_label.text = "玩家 HP：%d / %d    XP：%d    金币：%d" % [
+	var current_level := 1
+	var current_exp := float(player.current_xp)
+	var current_threshold := 0.0
+	if experience_system != null:
+		current_level = experience_system.current_level
+		current_exp = experience_system.current_exp
+		current_threshold = experience_system.get_current_threshold()
+	player_label.text = "玩家 HP：%d / %d    LV：%d    XP：%d / %d    金币：%d" % [
 		player.current_hp,
-		player.max_hp,
-		player.current_xp,
+		player.get_effective_max_hp(),
+		current_level,
+		floori(current_exp),
+		ceili(current_threshold),
 		player.current_gold,
 	]
 	boss_label.text = _get_boss_text()

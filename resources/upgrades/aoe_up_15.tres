@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"aoe_up_15"
+display_name = "Wide Broadcast"
+description = "Increase area size by 15%."
+category = &"combat"
+modifier_type = &"stat_modifier"
+target_key = &"aoe_radius_multiplier"
+operation = &"add_percent"
+value = 0.15
+max_pick_count = 4
+weight = 0.8

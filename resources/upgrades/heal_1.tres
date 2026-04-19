@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"heal_1"
+display_name = "Recovery Pulse"
+description = "Recover 1 lost hit."
+category = &"survival"
+modifier_type = &"instant_effect"
+target_key = &"restore_hit"
+operation = &"add_flat"
+value = 1.0
+max_pick_count = 99
+weight = 0.6

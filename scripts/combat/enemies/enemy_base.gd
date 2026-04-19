@@ -311,9 +311,15 @@ func _spawn_death_rewards() -> void:
 	if config.guaranteed_xp_drop > 0 and drop_receiver.has_method("add_xp"):
 		drop_receiver.call("add_xp", config.guaranteed_xp_drop)
 
-	if config.gold_drop_chance <= 0.0 or not drop_receiver.has_method("add_gold"):
+	if not drop_receiver.has_method("add_gold"):
 		return
-	if randf() > clampf(config.gold_drop_chance, 0.0, 1.0):
+	var gold_drop_chance := config.gold_drop_chance
+	if drop_receiver.has_method("get_gold_drop_chance_bonus"):
+		gold_drop_chance += float(drop_receiver.call("get_gold_drop_chance_bonus"))
+	gold_drop_chance = clampf(gold_drop_chance, 0.0, 1.0)
+	if gold_drop_chance <= 0.0:
+		return
+	if randf() > gold_drop_chance:
 		return
 
 	var min_amount := mini(config.gold_drop_amount_min, config.gold_drop_amount_max)

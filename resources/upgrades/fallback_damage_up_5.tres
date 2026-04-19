@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"fallback_damage_up_5"
+display_name = "Signal Tune"
+description = "Increase all spell damage by 5%."
+category = &"combat"
+modifier_type = &"stat_modifier"
+target_key = &"damage_multiplier"
+operation = &"add_percent"
+value = 0.05
+max_pick_count = 99
+weight = 0.1

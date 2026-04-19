@@ -4,6 +4,7 @@ extends RefCounted
 const MAX_TRIGGER_DEPTH := 4
 
 var debug_lines: Array[String] = []
+var run_modifier_controller: RunModifierController
 
 
 func resolve_main_cast(wand_runtime: WandRuntime, origin: Vector2, direction: Vector2) -> Array[SpawnRequest]:
@@ -141,14 +142,14 @@ func _build_request(
 	request.display_name = action.get_display_name()
 	request.origin = origin
 	request.direction = direction.normalized()
-	request.damage = action.damage * bundle.damage_mul
-	request.knockback_force = action.knockback_force
-	request.speed = action.speed * bundle.speed_mul
+	request.damage = action.damage * bundle.damage_mul * _get_damage_multiplier()
+	request.knockback_force = action.knockback_force * _get_knockback_multiplier()
+	request.speed = action.speed * bundle.speed_mul * _get_projectile_speed_multiplier()
 	request.lifetime = action.lifetime * bundle.lifetime_mul
-	request.radius = action.radius * bundle.size_mul
+	request.radius = action.radius * bundle.size_mul * _get_aoe_radius_multiplier()
 	request.pierce = max(0, action.pierce + bundle.pierce_add)
 	request.bounce = max(0, action.bounce + bundle.bounce_add)
-	request.explosion_radius = action.explosion_radius
+	request.explosion_radius = action.explosion_radius * _get_aoe_radius_multiplier()
 	request.projectile_color = action.projectile_color
 	request.on_hit_effects = action.on_hit_effects.duplicate()
 	request.echo_delay = bundle.echo_delay
@@ -181,6 +182,30 @@ func _attach_trigger_payload(
 		request.display_name,
 		request.trigger_payload.size(),
 	])
+
+
+func _get_damage_multiplier() -> float:
+	if run_modifier_controller == null:
+		return 1.0
+	return run_modifier_controller.get_damage_multiplier()
+
+
+func _get_knockback_multiplier() -> float:
+	if run_modifier_controller == null:
+		return 1.0
+	return run_modifier_controller.get_knockback_multiplier()
+
+
+func _get_projectile_speed_multiplier() -> float:
+	if run_modifier_controller == null:
+		return 1.0
+	return run_modifier_controller.get_projectile_speed_multiplier()
+
+
+func _get_aoe_radius_multiplier() -> float:
+	if run_modifier_controller == null:
+		return 1.0
+	return run_modifier_controller.get_aoe_radius_multiplier()
 
 
 func _log(message: String) -> void:

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"exp_gain_up_10"
+display_name = "Learning Circuit"
+description = "Increase exp gain by 10%."
+category = &"economy"
+modifier_type = &"stat_modifier"
+target_key = &"exp_gain_multiplier"
+operation = &"add_percent"
+value = 0.1
+max_pick_count = 3
+weight = 0.8

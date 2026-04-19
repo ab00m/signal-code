@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"cast_rate_up_10"
+display_name = "Rapid Broadcast"
+description = "Increase spell cast rate by 10%."
+category = &"combat"
+modifier_type = &"stat_modifier"
+target_key = &"cast_rate_multiplier"
+operation = &"add_percent"
+value = 0.1
+max_pick_count = 5
+weight = 1.0

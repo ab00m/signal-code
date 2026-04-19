@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"knockback_up_20"
+display_name = "Repulsion Boost"
+description = "Increase spell knockback by 20%."
+category = &"combat"
+modifier_type = &"stat_modifier"
+target_key = &"knockback_multiplier"
+operation = &"add_percent"
+value = 0.2
+max_pick_count = 4
+weight = 0.8
