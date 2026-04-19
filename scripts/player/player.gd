@@ -180,8 +180,8 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
-	hurtbox.monitoring = false
-	hurtbox.monitorable = false
+	hurtbox.set_deferred("monitoring", false)
+	hurtbox.set_deferred("monitorable", false)
 	died.emit()
 	queue_redraw()
 

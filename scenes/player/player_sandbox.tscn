@@ -7,7 +7,7 @@
 [ext_resource type="Script" uid="uid://p20hkn6awaj1" path="res://scripts/combat/enemy_locator.gd" id="5_locator"]
 [ext_resource type="Script" uid="uid://b7ddqjblw1hs2" path="res://scripts/combat/screen_clear_service.gd" id="6_clear"]
 [ext_resource type="Script" uid="uid://bnpqsdxrni07a" path="res://scripts/systems/game_settings.gd" id="7_settings"]
-[ext_resource type="Script" path="res://scripts/combat/enemies/enemy_spawner.gd" id="8_spawner"]
+[ext_resource type="Script" uid="uid://c1mhmn1enjwqu" path="res://scripts/combat/enemies/enemy_spawner.gd" id="8_spawner"]
 
 [node name="PlayerSandbox" type="Node2D" unique_id=493166575]
 script = ExtResource("1_sandbox")
@@ -40,7 +40,7 @@ script = ExtResource("6_clear")
 unique_name_in_owner = true
 script = ExtResource("7_settings")
 
-[node name="EnemySpawner" type="Node" parent="."]
+[node name="EnemySpawner" type="Node" parent="." unique_id=1241977180]
 unique_name_in_owner = true
 script = ExtResource("8_spawner")
 enemy_parent_path = NodePath("..")
@@ -49,11 +49,11 @@ drop_receiver_path = NodePath("../Player")
 boss_spawn_anchor_path = NodePath("../BossSpawnPoint")
 boss_reset_anchor_path = NodePath("../BossResetPoint")
 
-[node name="BossSpawnPoint" type="Marker2D" parent="."]
-position = Vector2(720, 180)
+[node name="BossSpawnPoint" type="Marker2D" parent="." unique_id=802286481]
+position = Vector2(632, 180)
 
-[node name="BossResetPoint" type="Marker2D" parent="."]
-position = Vector2(700, 180)
+[node name="BossResetPoint" type="Marker2D" parent="." unique_id=2022434195]
+position = Vector2(441, 180)
 
 [node name="Hud" type="CanvasLayer" parent="." unique_id=1032371864]
 
