@@ -3,6 +3,7 @@ extends Node2D
 const NORMAL_ENEMY_CONFIG := preload("res://resources/enemies/enemy_normal_signal.tres")
 const ELITE_ENEMY_CONFIG := preload("res://resources/enemies/enemy_elite_signal.tres")
 const BOSS_ENEMY_CONFIG := preload("res://resources/enemies/enemy_boss_signal.tres")
+const DEFAULT_WAND: WandData = preload("res://resources/spells/wands/player_sandbox_wand.tres")
 
 @onready var player: Player = %Player
 @onready var projectile_factory: ProjectileFactory = %ProjectileFactory
@@ -21,7 +22,7 @@ var _screen_clear_events: int = 0
 
 
 func _ready() -> void:
-	wand_runtime.wand_data = _build_default_wand()
+	wand_runtime.wand_data = DEFAULT_WAND.duplicate(true) as WandData
 	wand_runtime.projectile_factory = projectile_factory
 	player.bind_dependencies(enemy_locator, wand_runtime, screen_clear_service, game_settings)
 	_configure_enemy_spawner()
@@ -152,56 +153,3 @@ func _on_player_died() -> void:
 
 func _on_player_cast_requested(_direction: Vector2) -> void:
 	_update_hud()
-
-
-func _build_default_wand() -> WandData:
-	var wand := WandData.new()
-	wand.draws_per_cast = 1
-	wand.cast_delay = 0.08
-	wand.recharge_time = 0.16
-	wand.deck = [
-		_modifier(&"damage_up", "伤害提升", ModifierCardData.ModifierType.DAMAGE_MULTIPLY, 1.25, 0),
-		_action(&"spark_bolt", "火花弹", 5.0, 480.0, 1.0, 4.0, 1, 0.0, Color(0.45, 0.8, 1.0, 1.0)),
-		_action(&"fireball", "火球", 12.0, 340.0, 1.3, 8.0, 1, 12.0, Color(1.0, 0.45, 0.18, 1.0)),
-	]
-	return wand
-
-
-func _action(
-	id: StringName,
-	display_name: String,
-	damage: float,
-	speed: float,
-	lifetime: float,
-	radius: float,
-	projectile_count: int,
-	spread_degrees: float,
-	projectile_color: Color
-) -> ActionCardData:
-	var card := ActionCardData.new()
-	card.id = id
-	card.display_name = display_name
-	card.damage = damage
-	card.speed = speed
-	card.lifetime = lifetime
-	card.radius = radius
-	card.projectile_count = projectile_count
-	card.spread_degrees = spread_degrees
-	card.projectile_color = projectile_color
-	return card
-
-
-func _modifier(
-	id: StringName,
-	display_name: String,
-	modifier_type,
-	value_float: float,
-	value_int: int
-) -> ModifierCardData:
-	var card := ModifierCardData.new()
-	card.id = id
-	card.display_name = display_name
-	card.modifier_type = modifier_type
-	card.value_float = value_float
-	card.value_int = value_int
-	return card

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="WandData" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/wand_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/cards/signal_bolt.tres" id="2_signal"]
+
+[resource]
+script = ExtResource("1")
+deck = Array[Resource]([ExtResource("2_signal")])
+draws_per_cast = 1
+cast_delay = 0.05
+recharge_time = 0.08
+mana_max = 100.0

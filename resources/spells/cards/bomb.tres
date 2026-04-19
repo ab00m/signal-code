@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ActionCardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/action_card_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"bomb"
+display_name = "炸弹"
+description = "慢速高伤害弹丸，爆炸范围更大。"
+rarity = 2
+category = &"projectile"
+buy_cost = 8
+shop_weight = 0.45
+can_appear_in_shop = true
+damage = 25.0
+knockback_force = 120.0
+speed = 210.0
+lifetime = 1.8
+radius = 10.0
+explosion_radius = 30.0
+projectile_color = Color(0.9, 0.78, 0.24, 1)

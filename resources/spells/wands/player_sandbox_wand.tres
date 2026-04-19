@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WandData" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/wand_data.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/cards/damage_up.tres" id="2_damage"]
+[ext_resource type="Resource" path="res://resources/spells/cards/spark_bolt.tres" id="3_spark"]
+[ext_resource type="Resource" path="res://resources/spells/cards/fireball.tres" id="4_fire"]
+
+[resource]
+script = ExtResource("1")
+deck = Array[Resource]([ExtResource("2_damage"), ExtResource("3_spark"), ExtResource("4_fire")])
+draws_per_cast = 1
+cast_delay = 0.08
+recharge_time = 0.16
+mana_max = 100.0

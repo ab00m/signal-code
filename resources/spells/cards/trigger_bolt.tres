@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="TriggerActionCardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/trigger_action_card_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"trigger_bolt"
+display_name = "触发弹"
+description = "命中敌人时触发后续载荷。"
+rarity = 1
+category = &"projectile"
+buy_cost = 6
+shop_weight = 0.55
+can_appear_in_shop = true
+damage = 4.0
+knockback_force = 120.0
+speed = 440.0
+lifetime = 1.4
+radius = 5.0
+projectile_color = Color(0.62, 1, 0.55, 1)
+trigger_mode = 0
+timer_delay = 0.0
+payload_action_count = 1

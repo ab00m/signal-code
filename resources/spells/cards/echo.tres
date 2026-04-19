@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ModifierCardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/modifier_card_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"echo"
+display_name = "回响"
+description = "让本次发射请求追加延迟回响。"
+rarity = 1
+category = &"modifier"
+buy_cost = 5
+shop_weight = 0.65
+can_appear_in_shop = true
+modifier_type = 9
+value_float = 0.28

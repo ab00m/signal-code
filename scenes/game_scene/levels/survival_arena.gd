@@ -15,6 +15,7 @@ const EXP_GAIN_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/ex
 const MAX_HP_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/max_hp_up_1.tres")
 const HEAL_1: UpgradeOptionConfig = preload("res://resources/upgrades/heal_1.tres")
 const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgrades/fallback_damage_up_5.tres")
+const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/combat_default_wand.tres")
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const WAVE_DEFS: Array[Dictionary] = [
 	{"count": 3, "interval": 0.8},
@@ -109,7 +110,7 @@ func _configure_runtime() -> void:
 	upgrade_system.reset_run()
 	upgrade_system.bind_dependencies(experience_system, run_modifier_controller, upgrade_panel, player)
 	upgrade_system.start_run()
-	wand_runtime.wand_data = _build_default_wand()
+	wand_runtime.wand_data = COMBAT_DEFAULT_WAND.duplicate(true) as WandData
 	wand_runtime.projectile_factory = projectile_factory
 	wand_runtime.run_modifier_controller = run_modifier_controller
 	player.bind_dependencies(
@@ -405,37 +406,3 @@ func _get_boss_text() -> String:
 	if boss_enemy.config != null:
 		max_hp = boss_enemy.config.max_hp
 	return "Boss HP：%d / %d" % [ceili(boss_enemy.current_hp), ceili(max_hp)]
-
-
-func _build_default_wand() -> WandData:
-	var wand := WandData.new()
-	wand.draws_per_cast = 1
-	wand.cast_delay = 0.05
-	wand.recharge_time = 0.08
-	wand.deck = [
-		_action(&"signal_bolt", "信号弹", 12.0, 720.0, 2.4, 6.0, Color(0.45, 0.82, 1.0, 1.0)),
-	]
-	return wand
-
-
-func _action(
-	id: StringName,
-	display_name: String,
-	damage: float,
-	speed: float,
-	lifetime: float,
-	radius: float,
-	projectile_color: Color
-) -> ActionCardData:
-	var card := ActionCardData.new()
-	card.id = id
-	card.display_name = display_name
-	card.damage = damage
-	card.speed = speed
-	card.lifetime = lifetime
-	card.radius = radius
-	card.projectile_count = 1
-	card.spread_degrees = 0.0
-	card.knockback_force = 115.0
-	card.projectile_color = projectile_color
-	return card

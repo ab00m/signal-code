@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ActionCardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/action_card_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"fireball"
+display_name = "火球"
+description = "较慢但威力更高，命中时造成小范围爆炸。"
+rarity = 1
+category = &"projectile"
+buy_cost = 5
+shop_weight = 0.8
+can_appear_in_shop = true
+damage = 12.0
+knockback_force = 120.0
+speed = 330.0
+lifetime = 1.4
+radius = 8.0
+explosion_radius = 18.0
+projectile_color = Color(1, 0.42, 0.18, 1)

@@ -1,0 +1,163 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scenes/shop/shop_page.gd" id="1_page"]
+
+[node name="ShopPage" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_page")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.045, 0.052, 0.065, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 6
+
+[node name="Root" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TopBar" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="PageTitle" type="Label" parent="Margin/Root/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "法术商店"
+
+[node name="GoldLabel" type="Label" parent="Margin/Root/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "金币：0"
+
+[node name="RefreshCostLabel" type="Label" parent="Margin/Root/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新费用：2G"
+
+[node name="CloseButton" type="Button" parent="Margin/Root/TopBar"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "保存并关闭"
+
+[node name="StatusLabel" type="Label" parent="Margin/Root"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "准备中"
+
+[node name="MainColumns" type="HBoxContainer" parent="Margin/Root"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 4
+
+[node name="ShopPanel" type="PanelContainer" parent="Margin/Root/MainColumns"]
+custom_minimum_size = Vector2(236, 0)
+layout_mode = 2
+
+[node name="ShopMargin" type="MarginContainer" parent="Margin/Root/MainColumns/ShopPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
+
+[node name="ShopVBox" type="VBoxContainer" parent="Margin/Root/MainColumns/ShopPanel/ShopMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="ShopTitle" type="Label" parent="Margin/Root/MainColumns/ShopPanel/ShopMargin/ShopVBox"]
+layout_mode = 2
+text = "商店"
+horizontal_alignment = 1
+
+[node name="OfferGrid" type="GridContainer" parent="Margin/Root/MainColumns/ShopPanel/ShopMargin/ShopVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+columns = 2
+
+[node name="RefreshButton" type="Button" parent="Margin/Root/MainColumns/ShopPanel/ShopMargin/ShopVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷新商店"
+
+[node name="RightPanel" type="VBoxContainer" parent="Margin/Root/MainColumns"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="LoadoutPanel" type="PanelContainer" parent="Margin/Root/MainColumns/RightPanel"]
+layout_mode = 2
+
+[node name="LoadoutMargin" type="MarginContainer" parent="Margin/Root/MainColumns/RightPanel/LoadoutPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
+
+[node name="LoadoutVBox" type="VBoxContainer" parent="Margin/Root/MainColumns/RightPanel/LoadoutPanel/LoadoutMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="SlotCountLabel" type="Label" parent="Margin/Root/MainColumns/RightPanel/LoadoutPanel/LoadoutMargin/LoadoutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "施法栏：0 / 3"
+
+[node name="LoadoutSlots" type="HBoxContainer" parent="Margin/Root/MainColumns/RightPanel/LoadoutPanel/LoadoutMargin/LoadoutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="InventoryPanel" type="PanelContainer" parent="Margin/Root/MainColumns/RightPanel"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryMargin" type="MarginContainer" parent="Margin/Root/MainColumns/RightPanel/InventoryPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 5
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 5
+
+[node name="InventoryVBox" type="VBoxContainer" parent="Margin/Root/MainColumns/RightPanel/InventoryPanel/InventoryMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="CapacityLabel" type="Label" parent="Margin/Root/MainColumns/RightPanel/InventoryPanel/InventoryMargin/InventoryVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "背包：0 / 20"
+
+[node name="InventoryScroll" type="ScrollContainer" parent="Margin/Root/MainColumns/RightPanel/InventoryPanel/InventoryMargin/InventoryVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="InventoryGrid" type="GridContainer" parent="Margin/Root/MainColumns/RightPanel/InventoryPanel/InventoryMargin/InventoryVBox/InventoryScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 5

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpellCardDatabase" load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/spell_card_database.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/spells/cards/signal_bolt.tres" id="2_signal"]
+[ext_resource type="Resource" path="res://resources/spells/cards/spark_bolt.tres" id="3_spark"]
+[ext_resource type="Resource" path="res://resources/spells/cards/fireball.tres" id="4_fire"]
+[ext_resource type="Resource" path="res://resources/spells/cards/bomb.tres" id="5_bomb"]
+[ext_resource type="Resource" path="res://resources/spells/cards/damage_up.tres" id="6_damage"]
+[ext_resource type="Resource" path="res://resources/spells/cards/double_cast.tres" id="7_double"]
+[ext_resource type="Resource" path="res://resources/spells/cards/spread.tres" id="8_spread"]
+[ext_resource type="Resource" path="res://resources/spells/cards/speed_up.tres" id="9_speed"]
+[ext_resource type="Resource" path="res://resources/spells/cards/echo.tres" id="10_echo"]
+[ext_resource type="Resource" path="res://resources/spells/cards/plus_one.tres" id="11_plus"]
+[ext_resource type="Resource" path="res://resources/spells/cards/timer_bolt.tres" id="12_timer"]
+[ext_resource type="Resource" path="res://resources/spells/cards/trigger_bolt.tres" id="13_trigger"]
+
+[resource]
+script = ExtResource("1")
+cards = Array[Resource]([ExtResource("2_signal"), ExtResource("3_spark"), ExtResource("4_fire"), ExtResource("5_bomb"), ExtResource("6_damage"), ExtResource("7_double"), ExtResource("8_spread"), ExtResource("9_speed"), ExtResource("10_echo"), ExtResource("11_plus"), ExtResource("12_timer"), ExtResource("13_trigger")])

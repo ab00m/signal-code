@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ModifierCardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/spell/data/modifier_card_data.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"damage_up"
+display_name = "伤害提升"
+description = "使下一张动作卡造成更高伤害。"
+category = &"modifier"
+buy_cost = 4
+shop_weight = 1.0
+can_appear_in_shop = true
+modifier_type = 0
+value_float = 1.5
