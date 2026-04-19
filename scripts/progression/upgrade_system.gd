@@ -28,6 +28,7 @@ var _pending_levels: Array[int] = []
 var _current_options: Array[UpgradeOptionConfig] = []
 var _was_tree_paused: bool = false
 var _pause_snapshot_active: bool = false
+var _run_active: bool = false
 
 
 func _ready() -> void:
@@ -64,8 +65,17 @@ func reset_run() -> void:
 		upgrade_panel.hide_panel()
 
 
+func start_run() -> void:
+	_run_active = true
+
+
+func end_run() -> void:
+	_run_active = false
+	reset_run()
+
+
 func request_upgrade(new_level: int) -> void:
-	if _is_player_dead():
+	if not _run_active or _is_player_dead():
 		return
 	_pending_levels.append(new_level)
 	if state == State.IDLE:
@@ -94,7 +104,7 @@ func generate_upgrade_choices() -> Array[UpgradeOptionConfig]:
 
 
 func _open_next_upgrade() -> void:
-	if _is_player_dead():
+	if not _run_active or _is_player_dead():
 		_pending_levels.clear()
 		_restore_tree_pause()
 		state = State.IDLE

@@ -98,6 +98,7 @@ func _configure_runtime() -> void:
 	upgrade_system.fallback_option = FALLBACK_DAMAGE_UP_5
 	upgrade_system.reset_run()
 	upgrade_system.bind_dependencies(experience_system, run_modifier_controller, upgrade_panel, player)
+	upgrade_system.start_run()
 	wand_runtime.wand_data = _build_default_wand()
 	wand_runtime.projectile_factory = projectile_factory
 	wand_runtime.run_modifier_controller = run_modifier_controller
@@ -136,7 +137,7 @@ func _connect_progression_signals() -> void:
 
 func _start_encounter() -> void:
 	status_text = "校准自动施法..."
-	await get_tree().create_timer(start_delay).timeout
+	await get_tree().create_timer(start_delay, false).timeout
 
 	for wave_index in range(WAVE_DEFS.size()):
 		if encounter_finished:
@@ -148,7 +149,7 @@ func _start_encounter() -> void:
 		if encounter_finished:
 			return
 		status_text = "第 %d 波清除" % (current_wave_index + 1)
-		await get_tree().create_timer(wave_pause).timeout
+		await get_tree().create_timer(wave_pause, false).timeout
 
 	if encounter_finished:
 		return
@@ -168,7 +169,7 @@ func _spawn_wave(wave: Dictionary) -> void:
 		var enemy := enemy_spawner.spawn_normal_random_y(NORMAL_ENEMY_CONFIG)
 		_register_enemy(enemy)
 		if index < enemy_count - 1:
-			await get_tree().create_timer(interval).timeout
+			await get_tree().create_timer(interval, false).timeout
 
 	is_spawning = false
 
@@ -191,13 +192,14 @@ func _register_enemy(enemy: EnemyBase) -> void:
 
 func _wait_until_wave_clear() -> void:
 	while not encounter_finished and (_get_alive_enemy_count() > 0 or is_spawning):
-		await get_tree().create_timer(0.2).timeout
+		await get_tree().create_timer(0.2, false).timeout
 
 
 func _on_enemy_died(enemy: EnemyBase) -> void:
 	active_enemies.erase(enemy)
 	if enemy == boss_enemy and not encounter_finished:
 		encounter_finished = true
+		upgrade_system.end_run()
 		status_text = "Boss 信号核已摧毁"
 		boss_enemy = null
 		_update_hud()
@@ -210,7 +212,7 @@ func _on_player_died() -> void:
 	if encounter_finished:
 		return
 	encounter_finished = true
-	upgrade_system.reset_run()
+	upgrade_system.end_run()
 	status_text = "信号中断"
 	_update_hud()
 	level_lost.emit()
