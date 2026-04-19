@@ -101,7 +101,9 @@ func _handle_hit(hit_source: Node = null) -> void:
 	if request == null:
 		return
 
-	_apply_enemy_hit(hit_source)
+	var hit_applied := _apply_enemy_hit(hit_source)
+	if not hit_applied:
+		return
 
 	if request.trigger_mode == TriggerActionCardData.TriggerMode.ON_HIT:
 		_trigger_payload(global_position, _get_move_direction())
@@ -113,10 +115,10 @@ func _handle_hit(hit_source: Node = null) -> void:
 	queue_free()
 
 
-func _apply_enemy_hit(hit_source: Node) -> void:
+func _apply_enemy_hit(hit_source: Node) -> bool:
 	var enemy := _find_enemy_source(hit_source)
 	if enemy == null or not enemy.has_method("apply_hit"):
-		return
+		return false
 
 	var hit := HitData.new()
 	hit.damage = request.damage
@@ -124,7 +126,7 @@ func _apply_enemy_hit(hit_source: Node) -> void:
 	hit.hit_direction = _get_move_direction()
 	hit.knockback_force = request.knockback_force
 	hit.source = self
-	enemy.call("apply_hit", hit)
+	return bool(enemy.call("apply_hit", hit))
 
 
 func _find_enemy_source(source: Node) -> Node:

@@ -13,7 +13,6 @@ signal cast_requested(direction: Vector2)
 @export var cast_cooldown: float = 0.35
 @export var hurt_invincible_duration: float = 0.5
 @export var idle_cast_direction: Vector2 = Vector2.RIGHT
-@export var debug_draw_enabled: bool = true
 @export var enemy_locator_path: NodePath
 @export var wand_runtime_path: NodePath
 @export var screen_clear_service_path: NodePath
@@ -51,28 +50,6 @@ func _process(delta: float) -> void:
 	if can_cast_now():
 		perform_auto_cast()
 
-	if debug_draw_enabled:
-		queue_redraw()
-
-
-func _draw() -> void:
-	if not debug_draw_enabled:
-		return
-
-	var body_color := Color(0.24, 0.72, 1.0, 1.0)
-	if is_dead:
-		body_color = Color(0.25, 0.28, 0.32, 1.0)
-	elif hurt_invincible_timer > 0.0:
-		body_color = Color(1.0, 0.9, 0.36, 1.0)
-
-	draw_circle(Vector2.ZERO, 18.0, body_color)
-	draw_arc(Vector2.ZERO, 22.0, 0.0, TAU, 36, Color(1.0, 1.0, 1.0, 0.58), 1.5)
-
-	var direction := _last_cast_direction.normalized()
-	if direction == Vector2.ZERO:
-		direction = idle_cast_direction.normalized()
-	draw_line(Vector2.ZERO, direction * 72.0, Color(0.7, 1.0, 0.74, 0.9), 2.0)
-
 
 func bind_dependencies(
 	locator: EnemyLocator,
@@ -100,7 +77,6 @@ func reset_player() -> void:
 	hp_changed.emit(current_hp, max_hp)
 	xp_changed.emit(current_xp)
 	gold_changed.emit(current_gold)
-	queue_redraw()
 
 
 func can_cast_now() -> bool:
@@ -118,7 +94,6 @@ func perform_auto_cast() -> void:
 		wand_runtime.cast_once(self, cast_origin.global_position, direction)
 	cast_requested.emit(direction)
 	reset_cast_cooldown()
-	queue_redraw()
 
 
 func reset_cast_cooldown() -> void:
@@ -153,7 +128,6 @@ func take_damage_from_enemy(_source: Node) -> void:
 		return
 
 	trigger_screen_clear()
-	queue_redraw()
 
 
 func add_xp(amount: int) -> void:
@@ -183,7 +157,6 @@ func die() -> void:
 	hurtbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
 	died.emit()
-	queue_redraw()
 
 
 func get_last_cast_direction() -> Vector2:

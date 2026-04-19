@@ -18,11 +18,13 @@ var velocity: Vector2 = Vector2.ZERO
 var knockback_velocity: Vector2 = Vector2.ZERO
 var is_dead: bool = false
 var is_contact_disabled: bool = false
+var has_entered_active_window: bool = false
 var spawn_origin: Vector2 = Vector2.ZERO
 
 var _collision_shape: CollisionShape2D
 var _body_root: Node2D
 var _body_instance: Node2D
+var _body_collision_source: CollisionShape2D
 var _flash_timer: float = 0.0
 var _flash_duration: float = 0.0
 var _contact_disable_timer: float = 0.0
@@ -48,6 +50,7 @@ func _physics_process(delta: float) -> void:
 	if is_dead:
 		return
 
+	_update_active_window_state()
 	_update_timers(delta)
 	var seek_velocity := _compute_seek_velocity()
 	var separation_velocity := _compute_separation_velocity()
@@ -76,9 +79,9 @@ func _draw() -> void:
 		draw_line(Vector2(0.0, -radius * 0.62), Vector2(0.0, radius * 0.62), Color(1.0, 1.0, 1.0, 0.75), 2.0)
 
 
-func apply_hit(hit: HitData) -> void:
-	if is_dead:
-		return
+func apply_hit(hit: HitData) -> bool:
+	if is_dead or not can_receive_combat_effects():
+		return false
 
 	var damage_amount := maxf(0.0, hit.damage)
 	current_hp -= damage_amount
@@ -95,6 +98,7 @@ func apply_hit(hit: HitData) -> void:
 	damaged.emit(self, damage_amount, current_hp)
 	if current_hp <= 0.0:
 		die(hit)
+	return true
 
 
 func die(hit: HitData = null) -> void:
@@ -139,6 +143,14 @@ func reset_to_anchor() -> void:
 
 func can_contact_player() -> bool:
 	return not is_dead and not is_contact_disabled
+
+
+func can_be_targeted() -> bool:
+	return not is_dead and has_entered_active_window
+
+
+func can_receive_combat_effects() -> bool:
+	return not is_dead and _is_inside_active_window()
 
 
 func _configure_area() -> void:
@@ -187,6 +199,7 @@ func _rebuild_body_scene() -> void:
 	if _body_instance != null:
 		_body_instance.queue_free()
 		_body_instance = null
+	_body_collision_source = null
 	if config.body_scene == null or _body_root == null:
 		return
 
@@ -194,8 +207,45 @@ func _rebuild_body_scene() -> void:
 	if instance is Node2D:
 		_body_instance = instance as Node2D
 		_body_root.add_child(_body_instance)
+		_apply_body_scene_collision_shape()
 	else:
 		instance.queue_free()
+
+
+func _apply_body_scene_collision_shape() -> void:
+	if _body_instance == null or _collision_shape == null:
+		return
+
+	var source_collision := _find_first_collision_shape(_body_instance)
+	if source_collision == null or source_collision.shape == null:
+		return
+
+	_body_collision_source = source_collision
+	_collision_shape.shape = source_collision.shape.duplicate()
+	_collision_shape.transform = global_transform.affine_inverse() * source_collision.global_transform
+	_disable_body_scene_collision(source_collision)
+
+
+func _find_first_collision_shape(node: Node) -> CollisionShape2D:
+	if node is CollisionShape2D:
+		return node as CollisionShape2D
+
+	for child in node.get_children():
+		var collision := _find_first_collision_shape(child)
+		if collision != null:
+			return collision
+	return null
+
+
+func _disable_body_scene_collision(source_collision: CollisionShape2D) -> void:
+	source_collision.disabled = true
+	var owner := source_collision.get_parent()
+	if owner is Area2D:
+		var area := owner as Area2D
+		area.collision_layer = 0
+		area.collision_mask = 0
+		area.monitoring = false
+		area.monitorable = false
 
 
 func _update_timers(delta: float) -> void:
@@ -205,6 +255,18 @@ func _update_timers(delta: float) -> void:
 		_contact_disable_timer = maxf(0.0, _contact_disable_timer - delta)
 		if _contact_disable_timer <= 0.0:
 			is_contact_disabled = false
+
+
+func _update_active_window_state() -> void:
+	if has_entered_active_window:
+		return
+	if _is_inside_active_window():
+		has_entered_active_window = true
+
+
+func _is_inside_active_window() -> bool:
+	var visible_rect := get_viewport().get_visible_rect()
+	return visible_rect.has_point(global_position)
 
 
 func _compute_seek_velocity() -> Vector2:

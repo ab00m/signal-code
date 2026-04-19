@@ -1,0 +1,148 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scenes/game_scene/levels/survival_arena.gd" id="1_arena"]
+[ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="2_player"]
+[ext_resource type="Script" path="res://scripts/combat/enemy_locator.gd" id="3_locator"]
+[ext_resource type="Script" path="res://scripts/combat/screen_clear_service.gd" id="4_clear"]
+[ext_resource type="Script" path="res://scripts/systems/game_settings.gd" id="5_settings"]
+[ext_resource type="Script" path="res://scripts/spell/projectiles/projectile_factory.gd" id="6_factory"]
+[ext_resource type="Script" path="res://scripts/spell/runtime/wand_runtime.gd" id="7_wand"]
+[ext_resource type="Script" path="res://scripts/combat/enemies/enemy_spawner.gd" id="8_spawner"]
+
+[node name="SurvivalArena" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_arena")
+
+[node name="BackgroundColor" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.045, 0.052, 0.065, 1)
+
+[node name="BackgroundSprite" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="WorldRoot" type="Node2D" parent="."]
+
+[node name="ProjectileRoot" type="Node2D" parent="WorldRoot"]
+unique_name_in_owner = true
+
+[node name="EnemyRoot" type="Node2D" parent="WorldRoot"]
+unique_name_in_owner = true
+
+[node name="PlayerSpawn" type="Marker2D" parent="WorldRoot"]
+unique_name_in_owner = true
+position = Vector2(96, 180)
+
+[node name="BossSpawn" type="Marker2D" parent="WorldRoot"]
+unique_name_in_owner = true
+position = Vector2(528, 180)
+
+[node name="Player" parent="WorldRoot" instance=ExtResource("2_player")]
+unique_name_in_owner = true
+position = Vector2(96, 180)
+max_hp = 5
+cast_cooldown = 0.28
+enemy_locator_path = NodePath("../EnemyLocator")
+wand_runtime_path = NodePath("../WandRuntime")
+screen_clear_service_path = NodePath("../ScreenClearService")
+settings_path = NodePath("../GameSettings")
+
+[node name="EnemyLocator" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("3_locator")
+
+[node name="ScreenClearService" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("4_clear")
+
+[node name="GameSettings" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("5_settings")
+auto_aim_enabled = true
+
+[node name="ProjectileFactory" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("6_factory")
+projectile_parent_path = NodePath("../ProjectileRoot")
+
+[node name="WandRuntime" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("7_wand")
+projectile_factory_path = NodePath("../ProjectileFactory")
+
+[node name="EnemySpawner" type="Node" parent="WorldRoot"]
+unique_name_in_owner = true
+script = ExtResource("8_spawner")
+enemy_parent_path = NodePath("../EnemyRoot")
+player_path = NodePath("../Player")
+drop_receiver_path = NodePath("../Player")
+boss_spawn_anchor_path = NodePath("../BossSpawn")
+boss_reset_anchor_path = NodePath("../BossSpawn")
+spawn_margin = 80.0
+vertical_padding = 52.0
+
+[node name="Hud" type="CanvasLayer" parent="."]
+
+[node name="InfoPanel" type="PanelContainer" parent="Hud"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 360.0
+offset_bottom = 178.0
+
+[node name="Margin" type="MarginContainer" parent="Hud/InfoPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Hud/InfoPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TitleLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "准备接收信号..."
+
+[node name="WaveLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "波次：待命"
+
+[node name="EnemyLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "场上敌人：0"
+
+[node name="PlayerLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "玩家 HP：5 / 5    XP：0    金币：0"
+
+[node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Boss：未出现"
+
+[node name="HintLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "玩家固定在左侧，自动锁定最近敌人。"

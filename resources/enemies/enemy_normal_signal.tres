@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="EnemyConfig" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="EnemyConfig" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/combat/enemies/enemy_config.gd" id="1_config"]
+[ext_resource type="PackedScene" path="res://scenes/enemy/enemy_01.tscn" id="2_body"]
 
 [resource]
 script = ExtResource("1_config")
@@ -19,6 +20,7 @@ guaranteed_xp_drop = 1
 gold_drop_chance = 0.2
 gold_drop_amount_min = 1
 gold_drop_amount_max = 2
+body_scene = ExtResource("2_body")
 body_color = Color(0.95, 0.24, 0.26, 1)
 outline_color = Color(1, 1, 1, 0.55)
 spawn_weight = 1.0

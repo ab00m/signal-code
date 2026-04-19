@@ -14,6 +14,8 @@ func get_nearest_enemy(from_position: Vector2) -> Node2D:
 		var enemy := node as Node2D
 		if enemy.is_queued_for_deletion() or not enemy.is_inside_tree():
 			continue
+		if enemy.has_method("can_be_targeted") and not bool(enemy.call("can_be_targeted")):
+			continue
 
 		var distance_sq := from_position.distance_squared_to(enemy.global_position)
 		if distance_sq < nearest_distance_sq:

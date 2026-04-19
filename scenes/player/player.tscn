@@ -1,24 +1,29 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene format=3 uid="uid://c0b3clsaio2qu"]
 
-[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://b5h3evowyhrkf" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Texture2D" uid="uid://b82nqj0s823dq" path="res://assets/gameplay/player.png" id="2_dovo2"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
 radius = 20.0
 
-[node name="Player" type="Node2D"]
+[node name="Player" type="Node2D" unique_id=1911478857]
 script = ExtResource("1_player")
 
-[node name="Hurtbox" type="Area2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=2103994911]
 unique_name_in_owner = true
 collision_layer = 0
-collision_mask = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=453810935]
 shape = SubResource("CircleShape2D_hurtbox")
 
-[node name="CastOrigin" type="Marker2D" parent="."]
+[node name="CastOrigin" type="Marker2D" parent="." unique_id=215490009]
 unique_name_in_owner = true
 position = Vector2(22, 0)
 
-[node name="VisualRoot" type="Node2D" parent="."]
+[node name="VisualRoot" type="Node2D" parent="." unique_id=567270785]
 unique_name_in_owner = true
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=870272731]
+texture = ExtResource("2_dovo2")
+hframes = 7
+vframes = 2
