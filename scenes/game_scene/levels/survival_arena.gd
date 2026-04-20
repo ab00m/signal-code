@@ -162,6 +162,7 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var wave_label: Label = %WaveLabel
 @onready var enemy_label: Label = %EnemyLabel
 @onready var player_label: Label = %PlayerLabel
+@onready var experience_bar: ProgressBar = %ExperienceBar
 @onready var boss_label: Label = %BossLabel
 @onready var hint_label: Label = %HintLabel
 @onready var shop_button: Button = %ShopButton
@@ -523,20 +524,14 @@ func _show_result_page(victory: bool) -> void:
 
 func _get_result_stats_text(victory: bool) -> String:
 	var current_level := 1
-	var current_exp := 0.0
-	var current_threshold := 0.0
 	if experience_system != null:
 		current_level = experience_system.current_level
-		current_exp = experience_system.current_exp
-		current_threshold = experience_system.get_current_threshold()
 	var wave_text := "Boss" if victory else _get_current_wave_text()
-	return "进度：%s\n玩家：HP %d / %d    LV %d    XP %d / %d\n金币：%d" % [
+	return "进度：%s\n玩家：HP %d / %d    LV %d\n金币：%d" % [
 		wave_text,
 		player.current_hp,
 		player.get_effective_max_hp(),
 		current_level,
-		floori(current_exp),
-		ceili(current_threshold),
 		player.current_gold,
 	]
 
@@ -676,8 +671,13 @@ func _cleanup_active_enemies() -> void:
 			active_enemies.remove_at(index)
 
 
-func _is_alive_enemy(enemy: EnemyBase) -> bool:
-	return enemy != null and is_instance_valid(enemy) and not enemy.is_queued_for_deletion() and not enemy.is_dead
+func _is_alive_enemy(enemy: Variant) -> bool:
+	if enemy == null or not is_instance_valid(enemy):
+		return false
+	if not (enemy is EnemyBase):
+		return false
+	var enemy_base := enemy as EnemyBase
+	return not enemy_base.is_queued_for_deletion() and not enemy_base.is_dead
 
 
 func _get_current_level_timer_text() -> String:
@@ -716,14 +716,15 @@ func _update_hud() -> void:
 		current_level = experience_system.current_level
 		current_exp = experience_system.current_exp
 		current_threshold = experience_system.get_current_threshold()
-	player_label.text = "玩家 HP：%d / %d    LV：%d    XP：%d / %d    金币：%d" % [
+	player_label.text = "玩家 HP：%d / %d    LV：%d    金币：%d" % [
 		player.current_hp,
 		player.get_effective_max_hp(),
 		current_level,
-		floori(current_exp),
-		ceili(current_threshold),
 		player.current_gold,
 	]
+	if experience_bar != null:
+		experience_bar.max_value = maxf(1.0, current_threshold)
+		experience_bar.value = clampf(current_exp, 0.0, experience_bar.max_value)
 	boss_label.text = _get_boss_text()
 	hint_label.text = "玩家固定在左侧，自动锁定最近敌人。"
 

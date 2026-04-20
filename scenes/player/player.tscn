@@ -20,6 +20,17 @@ shape = SubResource("CircleShape2D_hurtbox")
 unique_name_in_owner = true
 position = Vector2(22, 0)
 
+[node name="ReloadBar" type="ProgressBar" parent="." unique_id=1889601557]
+unique_name_in_owner = true
+visible = false
+offset_left = -24.0
+offset_top = -42.0
+offset_right = 24.0
+offset_bottom = -36.0
+max_value = 1.0
+value = 0.0
+show_percentage = false
+
 [node name="VisualRoot" type="Node2D" parent="." unique_id=567270785]
 unique_name_in_owner = true
 

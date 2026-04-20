@@ -13,6 +13,7 @@ const DEFAULT_WAND: WandData = preload("res://resources/spells/wands/player_sand
 @onready var enemy_spawner: EnemySpawner = %EnemySpawner
 @onready var game_settings: GameSettings = %GameSettings
 @onready var status_label: Label = %StatusLabel
+@onready var sandbox_experience_bar: ProgressBar = %SandboxExperienceBar
 @onready var log_label: RichTextLabel = %LogLabel
 @onready var auto_aim_check_box: CheckBox = %AutoAimCheckBox
 @onready var result_label: Label = %ResultLabel
@@ -110,7 +111,7 @@ func _update_hud() -> void:
 		"玩家主角沙盒\n"
 		+ "自动瞄准：%s\n" % ("开启" if game_settings.auto_aim_enabled else "关闭")
 		+ "HP：%d / %d\n" % [player.current_hp, player.max_hp]
-		+ "XP：%d  金币：%d\n" % [player.current_xp, player.current_gold]
+		+ "金币：%d\n" % player.current_gold
 		+ "无敌剩余：%.2f 秒\n" % player.hurt_invincible_timer
 		+ "施法 CD：%.2f 秒\n" % player.cast_cd_timer
 		+ "法杖 CD：%.2f 秒\n" % wand_runtime.get_cooldown_remaining()
@@ -119,6 +120,7 @@ func _update_hud() -> void:
 		+ "敌人：%d（Boss %d）\n" % [enemy_count, boss_count]
 		+ "受伤次数：%d  清屏次数：%d" % [_damage_events, _screen_clear_events]
 	)
+	sandbox_experience_bar.value = float(player.current_xp)
 
 	var log_text := ""
 	for line in wand_runtime.last_debug_lines:

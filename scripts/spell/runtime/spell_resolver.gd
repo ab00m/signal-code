@@ -37,7 +37,7 @@ func resolve_main_cast(wand_runtime: WandRuntime, origin: Vector2, direction: Ve
 
 func resolve_next_group(wand_runtime: WandRuntime) -> SpellGroup:
 	var group := SpellGroup.new()
-	var max_draws := wand_runtime.get_deck_size()
+	var max_draws := wand_runtime.get_remaining_cards_in_cycle()
 	var drawn := 0
 	var target_action_count := 1
 	var multicast_seen := false

@@ -156,7 +156,14 @@ text = "场上敌人：0"
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
-text = "玩家 HP：5 / 5    XP：0    金币：0"
+text = "玩家 HP：5 / 5    LV：1    金币：0"
+
+[node name="ExperienceBar" type="ProgressBar" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1307932212]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+value = 0.0
+show_percentage = false
 
 [node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=452943790]
 unique_name_in_owner = true

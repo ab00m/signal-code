@@ -17,6 +17,6 @@
 script = ExtResource("1")
 deck = Array[Resource]([ExtResource("2_damage"), ExtResource("3_spark"), ExtResource("4_double"), ExtResource("2_damage"), ExtResource("3_spark"), ExtResource("5_fire"), ExtResource("6_echo"), ExtResource("7_timer"), ExtResource("8_spread"), ExtResource("5_fire"), ExtResource("9_trigger"), ExtResource("2_damage"), ExtResource("10_bomb"), ExtResource("11_speed"), ExtResource("12_plus"), ExtResource("3_spark")])
 draws_per_cast = 1
-cast_delay = 0.08
-recharge_time = 0.12
+cast_delay = 0.3
+recharge_time = 0.3
 mana_max = 100.0

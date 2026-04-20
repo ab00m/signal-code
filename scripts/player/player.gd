@@ -22,6 +22,7 @@ signal cast_requested(direction: Vector2)
 
 @onready var hurtbox: Area2D = %Hurtbox
 @onready var cast_origin: Marker2D = %CastOrigin
+@onready var reload_bar: ProgressBar = %ReloadBar
 
 var current_hp: int
 var current_xp: int = 0
@@ -51,6 +52,7 @@ func _process(delta: float) -> void:
 		return
 
 	_update_timers(delta)
+	_update_reload_bar()
 	if can_cast_now():
 		perform_auto_cast()
 
@@ -88,10 +90,12 @@ func reset_player() -> void:
 
 
 func can_cast_now() -> bool:
-	if is_dead or cast_cd_timer > 0.0:
+	if is_dead:
 		return false
 	if wand_runtime != null:
 		return wand_runtime.can_cast()
+	if cast_cd_timer > 0.0:
+		return false
 	return true
 
 
@@ -100,8 +104,10 @@ func perform_auto_cast() -> void:
 	_last_cast_direction = direction
 	if wand_runtime != null:
 		wand_runtime.cast_once(self, cast_origin.global_position, direction)
+		_update_reload_bar()
+	else:
+		reset_cast_cooldown()
 	cast_requested.emit(direction)
-	reset_cast_cooldown()
 
 
 func reset_cast_cooldown() -> void:
@@ -217,6 +223,17 @@ func _update_timers(delta: float) -> void:
 		hurt_invincible_timer = maxf(0.0, hurt_invincible_timer - delta)
 	if cast_cd_timer > 0.0:
 		cast_cd_timer = maxf(0.0, cast_cd_timer - delta)
+
+
+func _update_reload_bar() -> void:
+	if reload_bar == null:
+		return
+	var should_show := wand_runtime != null and wand_runtime.is_reloading()
+	reload_bar.visible = should_show
+	if should_show:
+		reload_bar.value = wand_runtime.get_reload_progress()
+	else:
+		reload_bar.value = 0.0
 
 
 func _connect_hurtbox() -> void:

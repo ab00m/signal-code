@@ -7,6 +7,6 @@
 script = ExtResource("1")
 deck = Array[Resource]([ExtResource("2_signal")])
 draws_per_cast = 1
-cast_delay = 0.05
-recharge_time = 0.08
+cast_delay = 0.3
+recharge_time = 0.3
 mana_max = 100.0

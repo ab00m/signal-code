@@ -79,6 +79,14 @@ unique_name_in_owner = true
 layout_mode = 2
 text = "玩家主角沙盒"
 
+[node name="SandboxExperienceBar" type="ProgressBar" parent="Hud/InfoPanel/InfoMargin/InfoVBox" unique_id=1452935620]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+show_percentage = false
+
 [node name="AutoAimCheckBox" type="CheckBox" parent="Hud/InfoPanel/InfoMargin/InfoVBox" unique_id=1680835945]
 unique_name_in_owner = true
 layout_mode = 2

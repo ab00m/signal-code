@@ -30,7 +30,7 @@ func configure(offer: ShopOffer, card: SpellCardData) -> void:
 	offer_id = offer.offer_id
 	disabled = offer.is_purchased
 	name_label.text = card.get_display_name()
-	description_label.text = card.description
+	description_label.text = _build_card_description(card)
 	meta_label.text = "%s  %s" % [card.get_category_text().to_upper(), card.get_rarity_text()]
 	price_label.text = "已售" if offer.is_purchased else "购买 %dG" % offer.price
 	_apply_text_color(card.get_rarity_color())
@@ -44,6 +44,30 @@ func configure_locked(slot_index: int, unlock_level: int) -> void:
 	meta_label.text = "商店槽 %02d" % (slot_index + 1)
 	price_label.text = "锁定"
 	_apply_text_color(Color(0.45, 0.45, 0.45, 1.0))
+
+
+func _build_card_description(card: SpellCardData) -> String:
+	var lines: Array[String] = []
+	if not card.description.is_empty():
+		lines.append(card.description)
+	lines.append("伤害：%s" % _format_damage(card))
+	lines.append("施法延迟：%s" % _format_delay(card.cast_delay))
+	lines.append("充能延迟：%s" % _format_delay(card.recharge_time))
+	return "\n".join(lines)
+
+
+func _format_damage(card: SpellCardData) -> String:
+	if card is ActionCardData:
+		var action := card as ActionCardData
+		return "%.0f" % action.damage
+	return "-"
+
+
+func _format_delay(value: float) -> String:
+	if absf(value) <= 0.0001:
+		return "0.00s"
+	var sign := "+" if value > 0.0 else ""
+	return "%s%.2fs" % [sign, value]
 
 
 func _apply_text_color(color: Color) -> void:

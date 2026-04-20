@@ -9,6 +9,8 @@ const RARITY_LEGENDARY := 2
 @export var display_name: String = ""
 @export_multiline var description: String = ""
 @export var mana_cost: float = 0.0
+@export var cast_delay: float = 0.0
+@export var recharge_time: float = 0.1
 @export_range(0, 2, 1) var rarity: int = RARITY_COMMON
 @export var icon: Texture2D
 @export var category: StringName = &"projectile"
