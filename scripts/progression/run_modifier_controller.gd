@@ -61,7 +61,7 @@ func apply_stat_modifier(option: UpgradeOptionConfig) -> void:
 func get_damage_multiplier() -> float:
 	var multiplier: float = 1.0 + float(additive_percent.get(DAMAGE_MULTIPLIER, 0.0))
 	if god_power_damage_enabled:
-		multiplier *= 2.0
+		multiplier *= 5.0
 	return multiplier
 
 

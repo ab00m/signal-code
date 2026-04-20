@@ -7,7 +7,7 @@
 script = ExtResource("1_config")
 enemy_id = &"normal_signal"
 display_name = "普通信号体"
-max_hp = 18.0
+max_hp = 21.0
 move_speed = 64.0
 separation_strength = 48.0
 gold_drop_chance = 0.2

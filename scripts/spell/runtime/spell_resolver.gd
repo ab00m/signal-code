@@ -10,6 +10,7 @@ const MAX_TRIGGER_DEPTH := 4
 
 var debug_lines: Array[String] = []
 var run_modifier_controller: RunModifierController
+var debug_enabled: bool = true
 
 
 func resolve_main_cast(wand_runtime: WandRuntime, origin: Vector2, direction: Vector2) -> Array[SpawnRequest]:
@@ -226,4 +227,5 @@ func _get_aoe_radius_multiplier() -> float:
 
 func _log(message: String) -> void:
 	debug_lines.append(message)
-	print(message)
+	if debug_enabled:
+		print(message)

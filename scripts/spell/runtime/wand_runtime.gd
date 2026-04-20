@@ -47,6 +47,7 @@ func cast_once(caster: Node, origin: Vector2, direction: Vector2) -> Array[Spawn
 
 	var resolver := SpellResolver.new()
 	resolver.run_modifier_controller = run_modifier_controller
+	resolver.debug_enabled = debug_enabled
 	_begin_cast_card_tracking()
 	var group := resolver.resolve_next_group(self)
 	if group.is_empty():
@@ -305,4 +306,5 @@ func _get_recharge_time_reduction() -> float:
 
 func _log_runtime_delay(message: String) -> void:
 	last_debug_lines.append(message)
-	print(message)
+	if debug_enabled:
+		print(message)

@@ -20,7 +20,6 @@ const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/comb
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const LEVEL_COUNT := 10
 const DEFAULT_LEVEL_DURATION := 30.0
-const FINAL_LEVEL_DURATION := -1.0
 const LOW_ENEMY_COUNT_THRESHOLD := 10
 const LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER := 0.5
 const LEVEL_TICK_SECONDS := 0.1
@@ -29,103 +28,131 @@ const DEBUG_GOLD_AMOUNT := 100
 const DEBUG_EXP_AMOUNT := 10
 const LEVEL_DEFS: Array[Dictionary] = [
 	{
-		"spawn_interval": 1.4,
+		"spawn_interval": 2.0,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 4.0},
-			{"config": FAST_ENEMY_CONFIG, "weight": 1.0},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 12.0, "count": 3}],
+		"bursts": [{"time": 20.0, "count": 1, "config": ELITE_ENEMY_CONFIG}],
 	},
 	{
-		"spawn_interval": 1.25,
-		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.5},
-			{"config": FAST_ENEMY_CONFIG, "weight": 1.5},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 0.5},
-		],
-		"bursts": [{"time": 10.0, "count": 4}, {"time": 22.0, "count": 3}],
-	},
-	{
-		"spawn_interval": 1.1,
+		"spawn_interval": 1.6,
 		"spawn_pool": [
 			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
-			{"config": FAST_ENEMY_CONFIG, "weight": 1.7},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 0.8},
+			{"config": FAST_ENEMY_CONFIG, "weight": 1.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 15.0, "count": 5}],
+		"bursts": [
+			{"time": 10.0, "count": 2, "config": ELITE_ENEMY_CONFIG},
+			{"time": 20.0, "count": 6, "same_type": true},
+		],
+	},
+	{
+		"spawn_interval": 1.4,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 3.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 3.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
+		],
+		"bursts": [{"time": 10.0, "count": 6}, {"time": 20.0, "count": 8}],
+	},
+	{
+		"spawn_interval": 1.2,
+		"spawn_pool": [
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 3.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 3.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
+		],
+		"bursts": [
+			{"time": 5.0, "count": 6, "same_type": true},
+			{"time": 15.0, "count": 8, "same_type": true},
+			{"time": 25.0, "count": 10, "same_type": true},
+		],
 	},
 	{
 		"spawn_interval": 1.0,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.6},
-			{"config": FAST_ENEMY_CONFIG, "weight": 1.8},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.0},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.2},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 3.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 3.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 8.0, "count": 4}, {"time": 20.0, "count": 4}],
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
+		],
 	},
 	{
-		"boss": true,
-		"spawn_interval": 0.95,
+		"spawn_interval": 0.8,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.4},
-			{"config": FAST_ENEMY_CONFIG, "weight": 1.8},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.1},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.25},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 4.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 4.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 12.0, "count": 3, "config": HEAVY_ENEMY_CONFIG}],
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
+		],
 	},
 	{
-		"spawn_interval": 0.9,
+		"spawn_interval": 0.6,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 2.0},
-			{"config": FAST_ENEMY_CONFIG, "weight": 2.1},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.2},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.35},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 4.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 4.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 10.0, "count": 5}, {"time": 24.0, "count": 5}],
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
+		],
 	},
 	{
-		"spawn_interval": 0.82,
+		"spawn_interval": 0.6,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.8},
-			{"config": FAST_ENEMY_CONFIG, "weight": 2.2},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.4},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.45},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 4.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 4.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 9.0, "count": 4, "config": FAST_ENEMY_CONFIG}, {"time": 21.0, "count": 4, "config": HEAVY_ENEMY_CONFIG}],
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
+		],
 	},
 	{
-		"spawn_interval": 0.75,
+		"spawn_interval": 0.6,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.6},
-			{"config": FAST_ENEMY_CONFIG, "weight": 2.3},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.5},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.55},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 4.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 4.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 12.0, "count": 6}, {"time": 24.0, "count": 3, "config": ELITE_ENEMY_CONFIG}],
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
+		],
 	},
 	{
-		"spawn_interval": 0.68,
+		"spawn_interval": 0.6,
 		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.4},
-			{"config": FAST_ENEMY_CONFIG, "weight": 2.4},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.6},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.65},
+			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
+			{"config": FAST_ENEMY_CONFIG, "weight": 4.0},
+			{"config": HEAVY_ENEMY_CONFIG, "weight": 4.0},
+			{"config": ELITE_ENEMY_CONFIG, "weight": 1.0},
 		],
-		"bursts": [{"time": 8.0, "count": 6}, {"time": 20.0, "count": 6}],
-	},
-	{
-		"boss": true,
-		"duration": FINAL_LEVEL_DURATION,
-		"spawn_interval": 0.62,
-		"spawn_pool": [
-			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.2},
-			{"config": FAST_ENEMY_CONFIG, "weight": 2.5},
-			{"config": HEAVY_ENEMY_CONFIG, "weight": 1.8},
-			{"config": ELITE_ENEMY_CONFIG, "weight": 0.8},
+		"bursts": [
+			{"time": 5.0, "count": 6},
+			{"time": 15.0, "count": 8},
+			{"time": 25.0, "count": 10},
 		],
-		"bursts": [{"time": 10.0, "count": 5, "config": FAST_ENEMY_CONFIG}, {"time": 25.0, "count": 4, "config": ELITE_ENEMY_CONFIG}],
 	},
 ]
 const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
@@ -168,6 +195,8 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var debug_damage_scale_label: Label = %DebugDamageScaleLabel
 @onready var debug_add_gold_button: Button = %DebugAddGoldButton
 @onready var debug_add_exp_button: Button = %DebugAddExpButton
+@onready var spawn_log_check_button: CheckButton = %SpawnLogCheckButton
+@onready var cast_log_check_button: CheckButton = %CastLogCheckButton
 @onready var god_power_check_button: CheckButton = %GodPowerCheckButton
 @onready var shop_layer: CanvasLayer = %ShopLayer
 @onready var shop_page: ShopPage = %ShopPage
@@ -188,6 +217,8 @@ var current_level_elapsed: float = 0.0
 var status_text: String = "准备接收信号..."
 var encounter_finished: bool = false
 var is_spawning: bool = false
+var spawn_log_enabled: bool = false
+var cast_log_enabled: bool = false
 var shop_run_state: RunState
 var was_tree_paused_before_shop: bool = false
 
@@ -238,6 +269,7 @@ func _configure_runtime() -> void:
 	wand_runtime.wand_data = COMBAT_DEFAULT_WAND.duplicate(true) as WandData
 	wand_runtime.projectile_factory = projectile_factory
 	wand_runtime.run_modifier_controller = run_modifier_controller
+	wand_runtime.debug_enabled = cast_log_enabled
 	player.bind_dependencies(
 		enemy_locator,
 		wand_runtime,
@@ -294,10 +326,16 @@ func _connect_shop_signals() -> void:
 
 
 func _connect_debug_panel_signals() -> void:
+	spawn_log_check_button.button_pressed = spawn_log_enabled
+	cast_log_check_button.button_pressed = cast_log_enabled
 	if not debug_add_gold_button.pressed.is_connected(_on_debug_add_gold_pressed):
 		debug_add_gold_button.pressed.connect(_on_debug_add_gold_pressed)
 	if not debug_add_exp_button.pressed.is_connected(_on_debug_add_exp_pressed):
 		debug_add_exp_button.pressed.connect(_on_debug_add_exp_pressed)
+	if not spawn_log_check_button.toggled.is_connected(_on_spawn_log_toggled):
+		spawn_log_check_button.toggled.connect(_on_spawn_log_toggled)
+	if not cast_log_check_button.toggled.is_connected(_on_cast_log_toggled):
+		cast_log_check_button.toggled.connect(_on_cast_log_toggled)
 	if not god_power_check_button.toggled.is_connected(_on_god_power_toggled):
 		god_power_check_button.toggled.connect(_on_god_power_toggled)
 
@@ -361,13 +399,14 @@ func _spawn_level_boss(is_final_level: bool) -> void:
 		if is_final_level:
 			final_boss_enemy = current_level_boss_enemy
 	_register_enemy(current_level_boss_enemy)
+	_log_enemy_spawn(BOSS_ENEMY_CONFIG, "boss")
 	if current_level_boss_enemy != null and not current_level_boss_enemy.damaged.is_connected(_on_boss_damaged):
 		current_level_boss_enemy.damaged.connect(_on_boss_damaged)
 
 
 func _spawn_level_pool_enemy(level_def: Dictionary) -> void:
 	var enemy_config := _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
-	_register_enemy(enemy_spawner.spawn_normal_random_y(_get_scaled_enemy_config(enemy_config)))
+	_spawn_enemy_config(enemy_config, "interval")
 
 
 func _process_level_bursts(level_def: Dictionary, triggered_bursts: Dictionary) -> void:
@@ -386,11 +425,41 @@ func _process_level_bursts(level_def: Dictionary, triggered_bursts: Dictionary) 
 func _spawn_level_burst(burst: Dictionary, level_def: Dictionary) -> void:
 	var count := maxi(0, int(burst.get("count", 0)))
 	var configured_enemy := burst.get("config", null) as EnemyConfig
+	var burst_pool := _get_burst_spawn_pool(level_def)
+	if configured_enemy == null and bool(burst.get("same_type", true)):
+		configured_enemy = _pick_enemy_config_from_pool(burst_pool)
 	for _index in range(count):
 		var enemy_config := configured_enemy
 		if enemy_config == null:
-			enemy_config = _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
-		_register_enemy(enemy_spawner.spawn_normal_random_y(_get_scaled_enemy_config(enemy_config)))
+			enemy_config = _pick_enemy_config_from_pool(burst_pool)
+		_spawn_enemy_config(enemy_config, "burst")
+
+
+func _spawn_enemy_config(enemy_config: EnemyConfig, source: String) -> void:
+	_register_enemy(enemy_spawner.spawn_normal_random_y(_get_scaled_enemy_config(enemy_config)))
+	_log_enemy_spawn(enemy_config, source)
+
+
+func _log_enemy_spawn(enemy_config: EnemyConfig, source: String) -> void:
+	if not spawn_log_enabled:
+		return
+	print("[刷怪] 第%d关 %.1fs 来源=%s 类型=%s 场上=%d" % [
+		current_wave_index + 1,
+		current_level_elapsed,
+		source,
+		_get_enemy_config_log_name(enemy_config),
+		_get_alive_enemy_count(),
+	])
+
+
+func _get_enemy_config_log_name(enemy_config: EnemyConfig) -> String:
+	if enemy_config == null:
+		return "unknown"
+	if enemy_config.display_name != "":
+		return enemy_config.display_name
+	if enemy_config.enemy_id != &"":
+		return String(enemy_config.enemy_id)
+	return "enemy"
 
 
 func _get_scaled_enemy_config(enemy_config: EnemyConfig) -> EnemyConfig:
@@ -424,6 +493,19 @@ func _get_spawn_pool(level_def: Dictionary) -> Array:
 	if pool_value is Array:
 		return pool_value
 	return []
+
+
+func _get_burst_spawn_pool(level_def: Dictionary) -> Array:
+	var pool := _get_spawn_pool(level_def)
+	var burst_pool: Array = []
+	for entry in pool:
+		if not (entry is Dictionary):
+			continue
+		var enemy_config := entry.get("config", null) as EnemyConfig
+		if enemy_config == ELITE_ENEMY_CONFIG:
+			continue
+		burst_pool.append(entry)
+	return burst_pool
 
 
 func _get_level_bursts(level_def: Dictionary) -> Array:
@@ -628,6 +710,16 @@ func _on_debug_add_exp_pressed() -> void:
 	player.xp_changed.emit(player.current_xp)
 	_sync_shop_run_state_from_combat()
 	_update_hud()
+
+
+func _on_spawn_log_toggled(enabled: bool) -> void:
+	spawn_log_enabled = enabled
+
+
+func _on_cast_log_toggled(enabled: bool) -> void:
+	cast_log_enabled = enabled
+	if wand_runtime != null:
+		wand_runtime.debug_enabled = enabled
 
 
 func _on_god_power_toggled(enabled: bool) -> void:

@@ -196,7 +196,7 @@ anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -244.0
-offset_top = -196.0
+offset_top = -248.0
 offset_right = -8.0
 offset_bottom = -8.0
 grow_horizontal = 0
@@ -250,6 +250,16 @@ text = "+100金币"
 unique_name_in_owner = true
 layout_mode = 2
 text = "+10经验"
+
+[node name="SpawnLogCheckButton" type="CheckButton" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=676341622]
+unique_name_in_owner = true
+layout_mode = 2
+text = "刷怪日志"
+
+[node name="CastLogCheckButton" type="CheckButton" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1831324915]
+unique_name_in_owner = true
+layout_mode = 2
+text = "施法日志"
 
 [node name="GodPowerCheckButton" type="CheckButton" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1781339877]
 unique_name_in_owner = true
