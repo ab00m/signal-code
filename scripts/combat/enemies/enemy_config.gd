@@ -8,8 +8,6 @@ extends Resource
 @export var max_hp: float = 50.0
 @export var move_speed: float = 120.0
 
-@export var collision_radius: float = 16.0
-@export var separation_radius: float = 18.0
 @export var separation_strength: float = 80.0
 
 @export var knockback_multiplier: float = 1.0
@@ -27,4 +25,7 @@ extends Resource
 @export var outline_color: Color = Color(1.0, 1.0, 1.0, 0.55)
 
 @export var boss_reset_anchor_path: NodePath
+@export_range(0.0, 1.0, 0.01) var boss_entry_screen_x_ratio: float = 0.67
+@export_range(0.0, 1.0, 0.01) var boss_entry_screen_y_ratio: float = 0.5
+@export var boss_phase_wait_duration: float = 12.0
 @export var spawn_weight: float = 1.0

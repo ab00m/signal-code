@@ -24,6 +24,9 @@ const FINAL_LEVEL_DURATION := -1.0
 const LOW_ENEMY_COUNT_THRESHOLD := 10
 const LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER := 0.5
 const LEVEL_TICK_SECONDS := 0.1
+const ENEMY_HP_GROWTH_PER_TWO_LEVELS := 1.2
+const DEBUG_GOLD_AMOUNT := 100
+const DEBUG_EXP_AMOUNT := 10
 const LEVEL_DEFS: Array[Dictionary] = [
 	{
 		"spawn_interval": 1.4,
@@ -160,6 +163,12 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var boss_label: Label = %BossLabel
 @onready var hint_label: Label = %HintLabel
 @onready var shop_button: Button = %ShopButton
+@onready var debug_enemy_count_label: Label = %DebugEnemyCountLabel
+@onready var debug_enemy_hp_scale_label: Label = %DebugEnemyHpScaleLabel
+@onready var debug_damage_scale_label: Label = %DebugDamageScaleLabel
+@onready var debug_add_gold_button: Button = %DebugAddGoldButton
+@onready var debug_add_exp_button: Button = %DebugAddExpButton
+@onready var god_power_check_button: CheckButton = %GodPowerCheckButton
 @onready var shop_layer: CanvasLayer = %ShopLayer
 @onready var shop_page: ShopPage = %ShopPage
 @onready var result_layer: CanvasLayer = %ResultLayer
@@ -189,6 +198,7 @@ func _ready() -> void:
 	_configure_runtime()
 	_connect_player_signals()
 	_connect_result_buttons()
+	_connect_debug_panel_signals()
 	player.reset_player()
 	_configure_shop_state()
 	_connect_shop_signals()
@@ -283,6 +293,15 @@ func _connect_shop_signals() -> void:
 		shop_page.debug_experience_requested.connect(_on_shop_debug_experience_requested)
 
 
+func _connect_debug_panel_signals() -> void:
+	if not debug_add_gold_button.pressed.is_connected(_on_debug_add_gold_pressed):
+		debug_add_gold_button.pressed.connect(_on_debug_add_gold_pressed)
+	if not debug_add_exp_button.pressed.is_connected(_on_debug_add_exp_pressed):
+		debug_add_exp_button.pressed.connect(_on_debug_add_exp_pressed)
+	if not god_power_check_button.toggled.is_connected(_on_god_power_toggled):
+		god_power_check_button.toggled.connect(_on_god_power_toggled)
+
+
 func _start_encounter() -> void:
 	status_text = "校准自动施法..."
 	await get_tree().create_timer(start_delay, false).timeout
@@ -335,7 +354,7 @@ func _run_level(level_def: Dictionary) -> void:
 
 
 func _spawn_level_boss(is_final_level: bool) -> void:
-	current_level_boss_enemy = enemy_spawner.spawn_boss(BOSS_ENEMY_CONFIG, boss_spawn)
+	current_level_boss_enemy = enemy_spawner.spawn_boss(_get_scaled_enemy_config(BOSS_ENEMY_CONFIG), boss_spawn)
 	boss_enemy = current_level_boss_enemy
 	if current_level_boss_enemy != null:
 		boss_enemies.append(current_level_boss_enemy)
@@ -348,7 +367,7 @@ func _spawn_level_boss(is_final_level: bool) -> void:
 
 func _spawn_level_pool_enemy(level_def: Dictionary) -> void:
 	var enemy_config := _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
-	_register_enemy(enemy_spawner.spawn_normal_random_y(enemy_config))
+	_register_enemy(enemy_spawner.spawn_normal_random_y(_get_scaled_enemy_config(enemy_config)))
 
 
 func _process_level_bursts(level_def: Dictionary, triggered_bursts: Dictionary) -> void:
@@ -371,7 +390,26 @@ func _spawn_level_burst(burst: Dictionary, level_def: Dictionary) -> void:
 		var enemy_config := configured_enemy
 		if enemy_config == null:
 			enemy_config = _pick_enemy_config_from_pool(_get_spawn_pool(level_def))
-		_register_enemy(enemy_spawner.spawn_normal_random_y(enemy_config))
+		_register_enemy(enemy_spawner.spawn_normal_random_y(_get_scaled_enemy_config(enemy_config)))
+
+
+func _get_scaled_enemy_config(enemy_config: EnemyConfig) -> EnemyConfig:
+	if enemy_config == null:
+		return null
+
+	var scaled_config := enemy_config.duplicate(true) as EnemyConfig
+	scaled_config.max_hp = float(_get_scaled_enemy_hp(enemy_config.max_hp))
+	return scaled_config
+
+
+func _get_scaled_enemy_hp(base_hp: float) -> int:
+	var scaled_hp := base_hp * _get_enemy_hp_multiplier()
+	return maxi(1, floori(scaled_hp))
+
+
+func _get_enemy_hp_multiplier() -> float:
+	var passed_two_level_groups := maxi(0, floori(float(current_wave_index) / 2.0))
+	return pow(ENEMY_HP_GROWTH_PER_TWO_LEVELS, passed_two_level_groups)
 
 
 func _get_spawn_interval_for_current_enemy_count(level_def: Dictionary) -> float:
@@ -578,6 +616,25 @@ func _on_shop_debug_experience_requested(amount: int) -> void:
 	_update_hud()
 
 
+func _on_debug_add_gold_pressed() -> void:
+	player.add_gold(DEBUG_GOLD_AMOUNT)
+	_sync_shop_run_state_from_combat()
+	_update_hud()
+
+
+func _on_debug_add_exp_pressed() -> void:
+	experience_system.add_debug_exp_without_upgrade_requests(float(DEBUG_EXP_AMOUNT))
+	player.current_xp = floori(experience_system.current_exp)
+	player.xp_changed.emit(player.current_xp)
+	_sync_shop_run_state_from_combat()
+	_update_hud()
+
+
+func _on_god_power_toggled(enabled: bool) -> void:
+	run_modifier_controller.set_god_power_damage_enabled(enabled)
+	_update_hud()
+
+
 func _sync_shop_run_state_from_combat() -> void:
 	shop_run_state.gold = player.current_gold
 	shop_run_state.current_wave = maxi(0, current_wave_index + 1)
@@ -702,7 +759,8 @@ func _update_hud() -> void:
 	else:
 		wave_label.text = "关卡：待命"
 
-	enemy_label.text = "场上敌人：%d" % _get_alive_enemy_count()
+	var alive_enemy_count := _get_alive_enemy_count()
+	enemy_label.text = "场上敌人：%d" % alive_enemy_count
 	var current_level := 1
 	var current_exp := float(player.current_xp)
 	var current_threshold := 0.0
@@ -721,6 +779,21 @@ func _update_hud() -> void:
 		experience_bar.value = clampf(current_exp, 0.0, experience_bar.max_value)
 	boss_label.text = _get_boss_text()
 	hint_label.text = "玩家固定在左侧，自动锁定最近敌人。"
+	_update_debug_panel(alive_enemy_count)
+
+
+func _update_debug_panel(alive_enemy_count: int) -> void:
+	if debug_enemy_count_label == null:
+		return
+
+	debug_enemy_count_label.text = "场上敌人：%d" % alive_enemy_count
+	debug_enemy_hp_scale_label.text = "敌人血量系数：x%.2f" % _get_enemy_hp_multiplier()
+	var damage_multiplier := 1.0
+	if run_modifier_controller != null:
+		damage_multiplier = run_modifier_controller.get_damage_multiplier()
+	debug_damage_scale_label.text = "伤害系数：x%.2f" % damage_multiplier
+	if god_power_check_button != null and run_modifier_controller != null:
+		god_power_check_button.set_pressed_no_signal(run_modifier_controller.god_power_damage_enabled)
 
 
 func _get_boss_text() -> String:

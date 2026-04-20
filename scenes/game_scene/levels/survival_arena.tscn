@@ -148,6 +148,7 @@ text = "关卡：待命"
 
 [node name="EnemyLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=1933691221]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "场上敌人：0"
@@ -186,6 +187,74 @@ offset_top = 8.0
 offset_right = -8.0
 offset_bottom = 40.0
 text = "商店"
+
+[node name="DebugPanel" type="PanelContainer" parent="Hud" unique_id=759055506]
+unique_name_in_owner = true
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -244.0
+offset_top = -196.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Margin" type="MarginContainer" parent="Hud/DebugPanel" unique_id=400060101]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Hud/DebugPanel/Margin" unique_id=158440704]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="DebugTitleLabel" type="Label" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1777735671]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "调试面板"
+
+[node name="DebugEnemyCountLabel" type="Label" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1728573952]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "场上敌人：0"
+
+[node name="DebugEnemyHpScaleLabel" type="Label" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=281306601]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "敌人血量系数：x1.00"
+
+[node name="DebugDamageScaleLabel" type="Label" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=870642185]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "伤害系数：x1.00"
+
+[node name="DebugButtons" type="HBoxContainer" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1431925158]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="DebugAddGoldButton" type="Button" parent="Hud/DebugPanel/Margin/VBoxContainer/DebugButtons" unique_id=158378258]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+100金币"
+
+[node name="DebugAddExpButton" type="Button" parent="Hud/DebugPanel/Margin/VBoxContainer/DebugButtons" unique_id=1389291305]
+unique_name_in_owner = true
+layout_mode = 2
+text = "+10经验"
+
+[node name="GodPowerCheckButton" type="CheckButton" parent="Hud/DebugPanel/Margin/VBoxContainer" unique_id=1781339877]
+unique_name_in_owner = true
+layout_mode = 2
+text = "神力模式：伤害x2"
 
 [node name="UpgradeSelectionPanel" parent="." unique_id=1167567643 instance=ExtResource("12_panel")]
 unique_name_in_owner = true

@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://cmjpnglxlw6u6" path="res://assets/gameplay/enemy_elite_01.png" id="1_jvidy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oix7v"]
-size = Vector2(8.004211, 8.7715225)
+size = Vector2(10, 10)
 
 [node name="Node2D" type="Node2D" unique_id=1057212425]
 

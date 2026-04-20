@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://dwncowrhg8s3k" path="res://assets/gameplay/enemy_1.png" id="1_oix7v"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oix7v"]
-size = Vector2(6, 12)
+size = Vector2(8, 13)
 
 [node name="Node2D" type="Node2D" unique_id=1057212425]
 

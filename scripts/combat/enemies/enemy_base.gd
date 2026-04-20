@@ -6,6 +6,13 @@ signal damaged(enemy: EnemyBase, damage: float, current_hp: float)
 signal died(enemy: EnemyBase)
 signal contacted_player(enemy: EnemyBase)
 
+const BOSS_TARGET_REACHED_DISTANCE := 3.0
+const BOSS_MOVE_ENTRY := 0
+const BOSS_WAIT_ENTRY := 1
+const BOSS_MOVE_MIDPOINT := 2
+const BOSS_WAIT_MIDPOINT := 3
+const BOSS_CHASE_PLAYER := 4
+
 @export var config: EnemyConfig
 @export var knockback_decay: float = 520.0
 @export var contact_reenable_delay: float = 0.35
@@ -25,6 +32,11 @@ var _collision_shape: CollisionShape2D
 var _body_root: Node2D
 var _body_instance: Node2D
 var _body_collision_source: CollisionShape2D
+var _separation_radius: float = 16.0
+var _boss_move_target: Vector2 = Vector2.ZERO
+var _boss_wait_timer: float = 0.0
+var _boss_move_phase: int = BOSS_MOVE_ENTRY
+var _boss_has_move_target: bool = false
 var _flash_timer: float = 0.0
 var _flash_duration: float = 0.0
 var _contact_disable_timer: float = 0.0
@@ -52,8 +64,8 @@ func _physics_process(delta: float) -> void:
 
 	_update_active_window_state()
 	_update_timers(delta)
-	var seek_velocity := _compute_seek_velocity()
-	var separation_velocity := _compute_separation_velocity()
+	var seek_velocity := _compute_seek_velocity(delta)
+	var separation_velocity := Vector2.ZERO if _is_boss() else _compute_separation_velocity()
 	knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_decay * delta)
 	velocity = seek_velocity + separation_velocity + knockback_velocity
 	global_position += velocity * delta
@@ -71,7 +83,7 @@ func _draw() -> void:
 		var intensity := clampf(config.hit_flash_intensity, 0.0, 1.0)
 		body_color = body_color.lerp(Color.WHITE, flash_ratio * intensity)
 
-	var radius := maxf(1.0, config.collision_radius)
+	var radius := maxf(1.0, _separation_radius)
 	draw_circle(Vector2.ZERO, radius, body_color)
 	draw_arc(Vector2.ZERO, radius + 3.0, 0.0, TAU, 36, outline_color, 1.5)
 	if _is_boss():
@@ -139,6 +151,7 @@ func reset_to_anchor() -> void:
 	knockback_velocity = Vector2.ZERO
 	is_contact_disabled = true
 	_contact_disable_timer = contact_reenable_delay
+	_reset_boss_movement()
 	queue_redraw()
 
 
@@ -152,6 +165,10 @@ func can_be_targeted() -> bool:
 
 func can_receive_combat_effects() -> bool:
 	return not is_dead and _is_inside_active_window()
+
+
+func get_separation_radius() -> float:
+	return _separation_radius
 
 
 func _configure_area() -> void:
@@ -177,22 +194,19 @@ func _apply_config() -> void:
 
 	_configure_area()
 	current_hp = maxf(1.0, config.max_hp)
-	if _collision_shape.shape == null:
-		_collision_shape.shape = CircleShape2D.new()
-	var circle := _collision_shape.shape as CircleShape2D
-	if circle != null:
-		circle.radius = maxf(1.0, config.collision_radius)
 
 	add_to_group(&"enemy")
 	if _is_boss():
 		add_to_group(&"boss")
 		set_meta(&"ignore_player_screen_clear", true)
+		_reset_boss_movement()
 	else:
 		remove_from_group(&"boss")
 		if has_meta(&"ignore_player_screen_clear"):
 			remove_meta(&"ignore_player_screen_clear")
 
 	_rebuild_body_scene()
+	_update_separation_radius()
 	queue_redraw()
 
 
@@ -227,6 +241,7 @@ func _apply_body_scene_collision_shape() -> void:
 	_collision_shape.shape = source_collision.shape.duplicate()
 	_collision_shape.transform = global_transform.affine_inverse() * source_collision.global_transform
 	_disable_body_scene_collision(source_collision)
+	_update_separation_radius()
 
 
 func _find_first_collision_shape(node: Node) -> CollisionShape2D:
@@ -251,6 +266,31 @@ func _disable_body_scene_collision(source_collision: CollisionShape2D) -> void:
 		area.monitorable = false
 
 
+func _update_separation_radius() -> void:
+	_separation_radius = _estimate_collision_radius() + 6.0
+
+
+func _estimate_collision_radius() -> float:
+	if _collision_shape == null or _collision_shape.shape == null:
+		return 16.0
+
+	var shape := _collision_shape.shape
+	var shape_scale := _collision_shape.transform.get_scale()
+	var scale_abs := Vector2(absf(shape_scale.x), absf(shape_scale.y))
+	if shape is CircleShape2D:
+		var circle := shape as CircleShape2D
+		return circle.radius * maxf(scale_abs.x, scale_abs.y)
+	if shape is RectangleShape2D:
+		var rect := shape as RectangleShape2D
+		var size := rect.size * scale_abs
+		return maxf(size.x, size.y) * 0.5
+	if shape is CapsuleShape2D:
+		var capsule := shape as CapsuleShape2D
+		return maxf(capsule.radius * scale_abs.x, capsule.height * scale_abs.y * 0.5)
+
+	return 16.0
+
+
 func _update_timers(delta: float) -> void:
 	if _flash_timer > 0.0:
 		_flash_timer = maxf(0.0, _flash_timer - delta)
@@ -272,9 +312,12 @@ func _is_inside_active_window() -> bool:
 	return visible_rect.has_point(global_position)
 
 
-func _compute_seek_velocity() -> Vector2:
+func _compute_seek_velocity(delta: float) -> Vector2:
 	if player == null or not player.is_inside_tree() or config == null:
 		return Vector2.ZERO
+
+	if _is_boss():
+		return _compute_boss_seek_velocity(delta)
 
 	var direction := global_position.direction_to(player.global_position)
 	if direction == Vector2.ZERO:
@@ -282,8 +325,91 @@ func _compute_seek_velocity() -> Vector2:
 	return direction * config.move_speed
 
 
+func _compute_boss_seek_velocity(delta: float) -> Vector2:
+	if not _boss_has_move_target:
+		_reset_boss_movement()
+
+	match _boss_move_phase:
+		BOSS_MOVE_ENTRY:
+			return _move_boss_to_target_or_wait(BOSS_WAIT_ENTRY)
+		BOSS_WAIT_ENTRY:
+			return _wait_boss_then_move_midpoint(delta)
+		BOSS_MOVE_MIDPOINT:
+			return _move_boss_to_target_or_wait(BOSS_WAIT_MIDPOINT)
+		BOSS_WAIT_MIDPOINT:
+			return _wait_boss_then_chase(delta)
+		BOSS_CHASE_PLAYER:
+			return _get_boss_player_velocity()
+
+	return Vector2.ZERO
+
+
+func _reset_boss_movement() -> void:
+	var visible_rect := get_viewport().get_visible_rect()
+	_boss_move_target = Vector2(
+		visible_rect.position.x + visible_rect.size.x * clampf(config.boss_entry_screen_x_ratio, 0.0, 1.0),
+		visible_rect.position.y + visible_rect.size.y * clampf(config.boss_entry_screen_y_ratio, 0.0, 1.0)
+	)
+	_boss_wait_timer = 0.0
+	_boss_move_phase = BOSS_MOVE_ENTRY
+	_boss_has_move_target = true
+
+
+func _move_boss_to_target_or_wait(next_phase: int) -> Vector2:
+	if not _is_at_boss_move_target():
+		return _get_boss_target_velocity()
+
+	global_position = _boss_move_target
+	_boss_wait_timer = 0.0
+	_boss_move_phase = next_phase
+	return Vector2.ZERO
+
+
+func _wait_boss_then_move_midpoint(delta: float) -> Vector2:
+	_boss_wait_timer += delta
+	if _boss_wait_timer < _get_boss_phase_wait_duration():
+		return Vector2.ZERO
+
+	_boss_wait_timer = 0.0
+	_boss_move_target = global_position.lerp(player.global_position, 0.5)
+	_boss_move_phase = BOSS_MOVE_MIDPOINT
+	return _get_boss_target_velocity()
+
+
+func _wait_boss_then_chase(delta: float) -> Vector2:
+	_boss_wait_timer += delta
+	if _boss_wait_timer < _get_boss_phase_wait_duration():
+		return Vector2.ZERO
+
+	_boss_wait_timer = 0.0
+	_boss_move_phase = BOSS_CHASE_PLAYER
+	return _get_boss_player_velocity()
+
+
+func _get_boss_phase_wait_duration() -> float:
+	return maxf(0.0, config.boss_phase_wait_duration)
+
+
+func _is_at_boss_move_target() -> bool:
+	return global_position.distance_to(_boss_move_target) <= BOSS_TARGET_REACHED_DISTANCE
+
+
+func _get_boss_target_velocity() -> Vector2:
+	var direction := global_position.direction_to(_boss_move_target)
+	if direction == Vector2.ZERO:
+		return Vector2.ZERO
+	return direction * config.move_speed
+
+
+func _get_boss_player_velocity() -> Vector2:
+	var direction := global_position.direction_to(player.global_position)
+	if direction == Vector2.ZERO:
+		return Vector2.ZERO
+	return direction * config.move_speed
+
+
 func _compute_separation_velocity() -> Vector2:
-	if config == null or config.separation_radius <= 0.0:
+	if config == null or _separation_radius <= 0.0:
 		return Vector2.ZERO
 
 	var result := Vector2.ZERO
@@ -296,10 +422,14 @@ func _compute_separation_velocity() -> Vector2:
 
 		var offset := global_position - other.global_position
 		var distance := offset.length()
-		if distance <= 0.001 or distance >= config.separation_radius:
+		var other_radius := _separation_radius
+		if node.has_method("get_separation_radius"):
+			other_radius = float(node.call("get_separation_radius"))
+		var separation_distance := _separation_radius + other_radius
+		if distance <= 0.001 or distance >= separation_distance:
 			continue
 
-		var weight := 1.0 - distance / config.separation_radius
+		var weight := 1.0 - distance / separation_distance
 		result += offset.normalized() * weight
 
 	if result == Vector2.ZERO:

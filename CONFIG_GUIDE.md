@@ -163,9 +163,11 @@
 - `enemy_type`：敌人类型。
 - `max_hp`：生命值。
 - `move_speed`：移动速度。
-- `collision_radius`：碰撞半径。
-- `separation_radius`：敌人分离半径。
+- `body_scene`：敌人视觉与碰撞体场景，运行时使用场景内的 `CollisionShape2D` 作为碰撞区域。
 - `separation_strength`：敌人分离力度。
+- `boss_entry_screen_x_ratio`：Boss 入场固定点的屏幕 X 比例。
+- `boss_entry_screen_y_ratio`：Boss 入场固定点的屏幕 Y 比例。
+- `boss_phase_wait_duration`：Boss 入场点和中点阶段的停顿时间。
 - `knockback_level`：击退等级，默认 1，使用 1 到 10 级平滑边际递减曲线换算实际击退；0 级不击退，等级 8 时普通敌人大致会被击退 36px，Boss 不吃击退。 
 - `hit_flash_duration`：受击闪烁时长。
 - `hit_flash_intensity`：受击闪烁强度。

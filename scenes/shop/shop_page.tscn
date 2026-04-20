@@ -58,13 +58,17 @@ text = "刷新费用：2G"
 
 [node name="DebugExpButton" type="Button" parent="Margin/Root/TopBar"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
+disabled = true
 theme_override_font_sizes/font_size = 10
 text = "+10经验"
 
 [node name="DebugGoldButton" type="Button" parent="Margin/Root/TopBar"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
+disabled = true
 theme_override_font_sizes/font_size = 10
 text = "+10金币"
 

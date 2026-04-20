@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1")
-damage = 12.0
+damage = 10.0
 speed = 640.0
 lifetime = 1.0
 projectile_color = Color(0.45, 0.82, 1, 1)

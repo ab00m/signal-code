@@ -2,7 +2,7 @@ class_name DebugEnemy
 extends Area2D
 
 @export var is_boss: bool = false
-@export var move_speed: float = 42.0
+@export var move_speed: float = 64.0
 @export var radius: float = 14.0
 @export var enemy_color: Color = Color(0.95, 0.22, 0.28, 1.0)
 @export var boss_color: Color = Color(0.86, 0.36, 1.0, 1.0)
@@ -16,7 +16,7 @@ func configure(start_position: Vector2, boss: bool, target_node: Node2D) -> void
 	target = target_node
 	if is_boss:
 		radius = 26.0
-		move_speed = 28.0
+		move_speed = 64.0
 
 
 func _ready() -> void:

@@ -28,12 +28,15 @@ var flat_values := {
 	KNOCKBACK_LEVEL_BONUS: 0.0,
 }
 
+var god_power_damage_enabled: bool = false
+
 
 func reset_modifiers() -> void:
 	for key in additive_percent.keys():
 		additive_percent[key] = 0.0
 	for key in flat_values.keys():
 		flat_values[key] = 0.0
+	god_power_damage_enabled = false
 	modifier_changed.emit(&"")
 
 
@@ -56,36 +59,46 @@ func apply_stat_modifier(option: UpgradeOptionConfig) -> void:
 
 
 func get_damage_multiplier() -> float:
-	return 1.0 + additive_percent.get(DAMAGE_MULTIPLIER, 0.0)
+	var multiplier: float = 1.0 + float(additive_percent.get(DAMAGE_MULTIPLIER, 0.0))
+	if god_power_damage_enabled:
+		multiplier *= 2.0
+	return multiplier
+
+
+func set_god_power_damage_enabled(enabled: bool) -> void:
+	if god_power_damage_enabled == enabled:
+		return
+	god_power_damage_enabled = enabled
+	modifier_changed.emit(DAMAGE_MULTIPLIER)
 
 
 func get_cast_rate_multiplier() -> float:
-	return maxf(0.01, 1.0 + additive_percent.get(CAST_RATE_MULTIPLIER, 0.0))
+	return maxf(0.01, 1.0 + float(additive_percent.get(CAST_RATE_MULTIPLIER, 0.0)))
 
 
 func get_recharge_time_reduction() -> float:
-	return maxf(0.0, flat_values.get(RECHARGE_TIME_REDUCTION, 0.0))
+	return maxf(0.0, float(flat_values.get(RECHARGE_TIME_REDUCTION, 0.0)))
 
 
 func get_gold_drop_chance_bonus() -> float:
-	return additive_percent.get(GOLD_DROP_CHANCE, 0.0)
+	return float(additive_percent.get(GOLD_DROP_CHANCE, 0.0))
 
 
 func get_exp_gain_multiplier() -> float:
-	return maxf(0.0, 1.0 + additive_percent.get(EXP_GAIN_MULTIPLIER, 0.0))
+	return maxf(0.0, 1.0 + float(additive_percent.get(EXP_GAIN_MULTIPLIER, 0.0)))
 
 
 func get_knockback_level_bonus() -> int:
-	return maxi(0, roundi(flat_values.get(KNOCKBACK_LEVEL_BONUS, 0.0)))
+	return maxi(0, roundi(float(flat_values.get(KNOCKBACK_LEVEL_BONUS, 0.0))))
 
 
 func get_projectile_speed_multiplier() -> float:
-	return 1.0 + additive_percent.get(PROJECTILE_SPEED_MULTIPLIER, 0.0)
+	return 1.0 + float(additive_percent.get(PROJECTILE_SPEED_MULTIPLIER, 0.0))
 
 
 func get_aoe_radius_multiplier() -> float:
-	return 1.0 + additive_percent.get(AOE_RADIUS_MULTIPLIER, 0.0)
+	return 1.0 + float(additive_percent.get(AOE_RADIUS_MULTIPLIER, 0.0))
 
 
 func get_max_hp_bonus() -> int:
-	return maxi(0, roundi(flat_values.get(MAX_HP_BONUS, 0.0)))
+	return maxi(0, roundi(float(flat_values.get(MAX_HP_BONUS, 0.0))))

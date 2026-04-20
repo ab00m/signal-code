@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://bi3jij11lcf1w" path="res://assets/gameplay/boss.png" id="1_7ct0c"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oix7v"]
-size = Vector2(29, 17.5)
+size = Vector2(30, 20)
 
 [node name="Node2D" type="Node2D" unique_id=1057212425]
 
