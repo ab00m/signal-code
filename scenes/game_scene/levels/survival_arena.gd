@@ -20,6 +20,7 @@ const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/comb
 const MAIN_MENU_SCENE_PATH := "res://scenes/menus/main_menu/main_menu.tscn"
 const LEVEL_COUNT := 10
 const DEFAULT_LEVEL_DURATION := 30.0
+const FINAL_LEVEL_DURATION := -1.0
 const LOW_ENEMY_COUNT_THRESHOLD := 10
 const LOW_ENEMY_COUNT_INTERVAL_MULTIPLIER := 0.5
 const LEVEL_TICK_SECONDS := 0.1
@@ -71,6 +72,7 @@ const LEVEL_DEFS: Array[Dictionary] = [
 		],
 	},
 	{
+		"boss": true,
 		"spawn_interval": 1.0,
 		"spawn_pool": [
 			{"config": NORMAL_ENEMY_CONFIG, "weight": 3.0},
@@ -141,6 +143,9 @@ const LEVEL_DEFS: Array[Dictionary] = [
 		],
 	},
 	{
+		"boss": true,
+		"duration": FINAL_LEVEL_DURATION,
+		"boss_hp_multiplier": 4.0,
 		"spawn_interval": 0.6,
 		"spawn_pool": [
 			{"config": NORMAL_ENEMY_CONFIG, "weight": 1.0},
@@ -187,8 +192,8 @@ const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
 @onready var enemy_label: Label = %EnemyLabel
 @onready var player_label: Label = %PlayerLabel
 @onready var experience_bar: ProgressBar = %ExperienceBar
-@onready var boss_label: Label = %BossLabel
-@onready var hint_label: Label = %HintLabel
+@onready var boss_health_bar: ProgressBar = %BossHealthBar
+@onready var level_timer_bar: ProgressBar = %LevelTimerBar
 @onready var shop_button: Button = %ShopButton
 @onready var debug_enemy_count_label: Label = %DebugEnemyCountLabel
 @onready var debug_enemy_hp_scale_label: Label = %DebugEnemyHpScaleLabel
@@ -367,7 +372,7 @@ func _run_level(level_def: Dictionary) -> void:
 
 	status_text = "第 %d 关开始" % level_number
 	if is_boss_level:
-		_spawn_level_boss(is_final_level)
+		_spawn_level_boss(level_def, is_final_level)
 
 	while not encounter_finished:
 		if is_boss_level and current_level_boss_enemy == null:
@@ -391,8 +396,12 @@ func _run_level(level_def: Dictionary) -> void:
 		status_text = "第 %d 关结束" % level_number
 
 
-func _spawn_level_boss(is_final_level: bool) -> void:
-	current_level_boss_enemy = enemy_spawner.spawn_boss(_get_scaled_enemy_config(BOSS_ENEMY_CONFIG), boss_spawn)
+func _spawn_level_boss(level_def: Dictionary, is_final_level: bool) -> void:
+	var boss_hp_multiplier := maxf(0.0, float(level_def.get("boss_hp_multiplier", 1.0)))
+	current_level_boss_enemy = enemy_spawner.spawn_boss(
+		_get_scaled_enemy_config(BOSS_ENEMY_CONFIG, boss_hp_multiplier),
+		boss_spawn
+	)
 	boss_enemy = current_level_boss_enemy
 	if current_level_boss_enemy != null:
 		boss_enemies.append(current_level_boss_enemy)
@@ -462,12 +471,12 @@ func _get_enemy_config_log_name(enemy_config: EnemyConfig) -> String:
 	return "enemy"
 
 
-func _get_scaled_enemy_config(enemy_config: EnemyConfig) -> EnemyConfig:
+func _get_scaled_enemy_config(enemy_config: EnemyConfig, hp_multiplier: float = 1.0) -> EnemyConfig:
 	if enemy_config == null:
 		return null
 
 	var scaled_config := enemy_config.duplicate(true) as EnemyConfig
-	scaled_config.max_hp = float(_get_scaled_enemy_hp(enemy_config.max_hp))
+	scaled_config.max_hp = float(_get_scaled_enemy_hp(enemy_config.max_hp * maxf(0.0, hp_multiplier)))
 	return scaled_config
 
 
@@ -823,17 +832,12 @@ func _is_alive_enemy(enemy: Variant) -> bool:
 	return not enemy_base.is_queued_for_deletion() and not enemy_base.is_dead
 
 
-func _get_current_level_timer_text() -> String:
+func _get_current_level_duration() -> float:
 	if current_wave_index < 0 or current_wave_index >= LEVEL_DEFS.size():
-		return ""
+		return 0.0
 
 	var level_def := LEVEL_DEFS[current_wave_index]
-	var duration := float(level_def.get("duration", DEFAULT_LEVEL_DURATION))
-	if duration <= 0.0:
-		return "倒计时：无限"
-
-	var remaining := maxi(0, ceili(duration - current_level_elapsed))
-	return "倒计时：%ds" % remaining
+	return float(level_def.get("duration", DEFAULT_LEVEL_DURATION))
 
 
 func _update_hud() -> void:
@@ -841,13 +845,12 @@ func _update_hud() -> void:
 		return
 
 	title_label.text = status_text
-	var timer_text := _get_current_level_timer_text()
 	if current_wave_index >= 0 and final_boss_enemy != null:
-		wave_label.text = "关卡：%d / %d  最终 Boss  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
+		wave_label.text = "关卡：%d / %d  最终 Boss" % [current_wave_index + 1, LEVEL_COUNT]
 	elif current_wave_index >= 0 and current_level_boss_enemy != null:
-		wave_label.text = "关卡：%d / %d  Boss  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
+		wave_label.text = "关卡：%d / %d  Boss" % [current_wave_index + 1, LEVEL_COUNT]
 	elif current_wave_index >= 0:
-		wave_label.text = "关卡：%d / %d  %s" % [current_wave_index + 1, LEVEL_COUNT, timer_text]
+		wave_label.text = "关卡：%d / %d" % [current_wave_index + 1, LEVEL_COUNT]
 	else:
 		wave_label.text = "关卡：待命"
 
@@ -869,9 +872,39 @@ func _update_hud() -> void:
 	if experience_bar != null:
 		experience_bar.max_value = maxf(1.0, current_threshold)
 		experience_bar.value = clampf(current_exp, 0.0, experience_bar.max_value)
-	boss_label.text = _get_boss_text()
-	hint_label.text = "玩家固定在左侧，自动锁定最近敌人。"
+	_update_level_timer_bar()
+	_update_boss_health_bar()
 	_update_debug_panel(alive_enemy_count)
+
+
+func _update_level_timer_bar() -> void:
+	if level_timer_bar == null:
+		return
+	var duration := _get_current_level_duration()
+	var should_show := current_wave_index >= 0 and duration > 0.0 and not encounter_finished
+	level_timer_bar.visible = should_show
+	if not should_show:
+		level_timer_bar.value = 0.0
+		return
+	level_timer_bar.max_value = maxf(0.01, duration)
+	level_timer_bar.value = clampf(duration - current_level_elapsed, 0.0, level_timer_bar.max_value)
+
+
+func _update_boss_health_bar() -> void:
+	if boss_health_bar == null:
+		return
+	if boss_enemy == null or not _is_alive_enemy(boss_enemy):
+		boss_enemy = _get_latest_alive_boss()
+	var should_show := boss_enemy != null and not encounter_finished
+	boss_health_bar.visible = should_show
+	if not should_show:
+		boss_health_bar.value = 0.0
+		return
+	var max_hp := 1.0
+	if boss_enemy.config != null:
+		max_hp = maxf(1.0, boss_enemy.config.max_hp)
+	boss_health_bar.max_value = max_hp
+	boss_health_bar.value = clampf(boss_enemy.current_hp, 0.0, max_hp)
 
 
 func _update_debug_panel(alive_enemy_count: int) -> void:
@@ -886,14 +919,3 @@ func _update_debug_panel(alive_enemy_count: int) -> void:
 	debug_damage_scale_label.text = "伤害系数：x%.2f" % damage_multiplier
 	if god_power_check_button != null and run_modifier_controller != null:
 		god_power_check_button.set_pressed_no_signal(run_modifier_controller.god_power_damage_enabled)
-
-
-func _get_boss_text() -> String:
-	if boss_enemy == null or not _is_alive_enemy(boss_enemy):
-		boss_enemy = _get_latest_alive_boss()
-	if boss_enemy == null:
-		return "Boss：未出现"
-	var max_hp := 1.0
-	if boss_enemy.config != null:
-		max_hp = boss_enemy.config.max_hp
-	return "Boss HP：%d / %d" % [ceili(boss_enemy.current_hp), ceili(max_hp)]

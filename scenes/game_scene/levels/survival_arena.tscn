@@ -14,6 +14,18 @@
 [ext_resource type="PackedScene" path="res://scenes/upgrade/upgrade_selection_panel.tscn" id="12_panel"]
 [ext_resource type="PackedScene" uid="uid://2pa6cuxqu36m" path="res://scenes/shop/shop_page.tscn" id="13_shop"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_bar_bg"]
+bg_color = Color(0.18, 0.025, 0.035, 0.86)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_boss_bar_fill"]
+bg_color = Color(0.86, 0.04, 0.08, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_timer_bar_bg"]
+bg_color = Color(0.02, 0.025, 0.035, 0.72)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_timer_bar_fill"]
+bg_color = Color(0.95, 0.78, 0.25, 1)
+
 [node name="SurvivalArena" type="Control" unique_id=1738385454]
 layout_mode = 3
 anchors_preset = 15
@@ -117,6 +129,39 @@ vertical_padding = 52.0
 
 [node name="Hud" type="CanvasLayer" parent="." unique_id=1708287905]
 
+[node name="BossHealthBar" type="ProgressBar" parent="Hud" unique_id=260504523]
+unique_name_in_owner = true
+visible = false
+anchors_preset = -1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -184.0
+offset_top = 8.0
+offset_right = 184.0
+offset_bottom = 18.0
+theme_override_styles/background = SubResource("StyleBoxFlat_boss_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_boss_bar_fill")
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
+[node name="LevelTimerBar" type="ProgressBar" parent="Hud" unique_id=1868648041]
+unique_name_in_owner = true
+visible = false
+anchors_preset = -1
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -16.0
+offset_right = -24.0
+offset_bottom = -8.0
+theme_override_styles/background = SubResource("StyleBoxFlat_timer_bar_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_timer_bar_fill")
+max_value = 1.0
+value = 1.0
+show_percentage = false
+
 [node name="InfoPanel" type="PanelContainer" parent="Hud" unique_id=104783169]
 offset_left = 8.0
 offset_top = 8.0
@@ -164,18 +209,6 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 show_percentage = false
-
-[node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=452943790]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "Boss：未出现"
-
-[node name="HintLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=297402975]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_font_sizes/font_size = 12
-text = "玩家固定在左侧，自动锁定最近敌人。"
 
 [node name="ShopButton" type="Button" parent="Hud" unique_id=2112704093]
 unique_name_in_owner = true
