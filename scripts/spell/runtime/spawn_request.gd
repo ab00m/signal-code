@@ -13,6 +13,7 @@ var spell_size: float = 1.0
 var pierce: int = 0
 var bounce: int = 0
 var explosion_radius: float = 0.0
+var explosion_damage: float = 0.0
 var projectile_color: Color = Color(1.0, 1.0, 1.0, 1.0)
 var on_hit_effects: Array[StringName] = []
 var trigger_payload: Array[SpawnRequest] = []
@@ -35,6 +36,7 @@ func duplicate_request() -> SpawnRequest:
 	request.pierce = pierce
 	request.bounce = bounce
 	request.explosion_radius = explosion_radius
+	request.explosion_damage = explosion_damage
 	request.projectile_color = projectile_color
 	request.on_hit_effects = on_hit_effects.duplicate()
 	for payload_request in trigger_payload:

@@ -1,6 +1,11 @@
 class_name SpellResolver
 extends RefCounted
 
+const KNOCKBACK_REFERENCE_DECAY := 520.0
+const KNOCKBACK_TARGET_LEVEL := 8.0
+const KNOCKBACK_TARGET_DISPLACEMENT := 36.0
+const KNOCKBACK_CURVE_EXPONENT := 0.7
+
 const MAX_TRIGGER_DEPTH := 4
 
 var debug_lines: Array[String] = []
@@ -143,7 +148,7 @@ func _build_request(
 	request.origin = origin
 	request.direction = direction.normalized()
 	request.damage = action.damage * bundle.damage_mul * _get_damage_multiplier()
-	request.knockback_force = action.knockback_force * _get_knockback_multiplier()
+	request.knockback_force = _resolve_knockback_force(action.knockback_level)
 	request.speed = action.speed * bundle.speed_mul * _get_projectile_speed_multiplier()
 	request.lifetime = action.lifetime * bundle.lifetime_mul
 
@@ -151,6 +156,7 @@ func _build_request(
 	request.pierce = max(0, action.pierce + bundle.pierce_add)
 	request.bounce = max(0, action.bounce + bundle.bounce_add)
 	request.explosion_radius = action.explosion_radius * _get_aoe_radius_multiplier()
+	request.explosion_damage = action.explosion_damage
 	request.projectile_color = action.projectile_color
 	request.on_hit_effects = action.on_hit_effects.duplicate()
 	request.echo_delay = bundle.echo_delay
@@ -191,10 +197,19 @@ func _get_damage_multiplier() -> float:
 	return run_modifier_controller.get_damage_multiplier()
 
 
-func _get_knockback_multiplier() -> float:
+func _resolve_knockback_force(base_level: int) -> float:
+	var total_level := base_level + _get_knockback_level_bonus()
+	if total_level <= 0:
+		return 0.0
+	var normalized_level := pow(float(total_level) / KNOCKBACK_TARGET_LEVEL, KNOCKBACK_CURVE_EXPONENT)
+	var target_displacement := KNOCKBACK_TARGET_DISPLACEMENT * normalized_level
+	return sqrt(2.0 * KNOCKBACK_REFERENCE_DECAY * target_displacement)
+
+
+func _get_knockback_level_bonus() -> int:
 	if run_modifier_controller == null:
-		return 1.0
-	return run_modifier_controller.get_knockback_multiplier()
+		return 0
+	return run_modifier_controller.get_knockback_level_bonus()
 
 
 func _get_projectile_speed_multiplier() -> float:

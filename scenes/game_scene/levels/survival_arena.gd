@@ -9,14 +9,11 @@ const HEAVY_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_h
 const ELITE_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_elite_signal.tres")
 const BOSS_ENEMY_CONFIG: EnemyConfig = preload("res://resources/enemies/enemy_boss_signal.tres")
 const DAMAGE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/damage_up_10.tres")
-const CAST_RATE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/cast_rate_up_10.tres")
-const PROJECTILE_SPEED_UP_15: UpgradeOptionConfig = preload("res://resources/upgrades/projectile_speed_up_15.tres")
-const KNOCKBACK_UP_20: UpgradeOptionConfig = preload("res://resources/upgrades/knockback_up_20.tres")
-const AOE_UP_15: UpgradeOptionConfig = preload("res://resources/upgrades/aoe_up_15.tres")
-const GOLD_DROP_CHANCE_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/gold_drop_chance_up_10.tres")
-const EXP_GAIN_UP_10: UpgradeOptionConfig = preload("res://resources/upgrades/exp_gain_up_10.tres")
+const RECHARGE_DOWN_01: UpgradeOptionConfig = preload("res://resources/upgrades/recharge_down_01.tres")
+const KNOCKBACK_LEVEL_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/knockback_up_20.tres")
+const AOE_UP_20: UpgradeOptionConfig = preload("res://resources/upgrades/aoe_up_20.tres")
+const GOLD_BONUS_20: UpgradeOptionConfig = preload("res://resources/upgrades/gold_bonus_20.tres")
 const MAX_HP_UP_1: UpgradeOptionConfig = preload("res://resources/upgrades/max_hp_up_1.tres")
-const HEAL_1: UpgradeOptionConfig = preload("res://resources/upgrades/heal_1.tres")
 const FALLBACK_DAMAGE_UP_5: UpgradeOptionConfig = preload("res://resources/upgrades/fallback_damage_up_5.tres")
 const SPELL_CARD_DATABASE: SpellCardDatabase = preload("res://resources/spells/spell_card_database.tres")
 const COMBAT_DEFAULT_WAND: WandData = preload("res://resources/spells/wands/combat_default_wand.tres")
@@ -129,15 +126,12 @@ const LEVEL_DEFS: Array[Dictionary] = [
 	},
 ]
 const UPGRADE_POOL: Array[UpgradeOptionConfig] = [
+	RECHARGE_DOWN_01,
 	DAMAGE_UP_10,
-	CAST_RATE_UP_10,
-	PROJECTILE_SPEED_UP_15,
-	KNOCKBACK_UP_20,
-	AOE_UP_15,
-	GOLD_DROP_CHANCE_UP_10,
-	EXP_GAIN_UP_10,
 	MAX_HP_UP_1,
-	HEAL_1,
+	GOLD_BONUS_20,
+	AOE_UP_20,
+	KNOCKBACK_LEVEL_UP_1,
 ]
 
 @export var start_delay: float = 0.8

@@ -162,7 +162,6 @@ text = "玩家 HP：5 / 5    LV：1    金币：0"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
-value = 0.0
 show_percentage = false
 
 [node name="BossLabel" type="Label" parent="Hud/InfoPanel/Margin/VBoxContainer" unique_id=452943790]

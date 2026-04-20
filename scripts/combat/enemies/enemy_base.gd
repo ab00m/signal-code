@@ -93,7 +93,8 @@ func apply_hit(hit: HitData) -> bool:
 		hit_direction = (global_position - (hit.source as Node2D).global_position).normalized()
 	if hit_direction == Vector2.ZERO:
 		hit_direction = Vector2.LEFT
-	knockback_velocity += hit_direction * hit.knockback_force * config.knockback_multiplier
+	if not _is_boss():
+		knockback_velocity += hit_direction * hit.knockback_force * config.knockback_multiplier
 
 	damaged.emit(self, damage_amount, current_hp)
 	if current_hp <= 0.0:

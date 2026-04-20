@@ -5,9 +5,10 @@ signal modifier_changed(target_key: StringName)
 
 const DAMAGE_MULTIPLIER := &"damage_multiplier"
 const CAST_RATE_MULTIPLIER := &"cast_rate_multiplier"
+const RECHARGE_TIME_REDUCTION := &"recharge_time_reduction"
 const GOLD_DROP_CHANCE := &"gold_drop_chance"
 const EXP_GAIN_MULTIPLIER := &"exp_gain_multiplier"
-const KNOCKBACK_MULTIPLIER := &"knockback_multiplier"
+const KNOCKBACK_LEVEL_BONUS := &"knockback_level_bonus"
 const PROJECTILE_SPEED_MULTIPLIER := &"projectile_speed_multiplier"
 const AOE_RADIUS_MULTIPLIER := &"aoe_radius_multiplier"
 const MAX_HP_BONUS := &"max_hp_bonus"
@@ -17,13 +18,14 @@ var additive_percent := {
 	CAST_RATE_MULTIPLIER: 0.0,
 	GOLD_DROP_CHANCE: 0.0,
 	EXP_GAIN_MULTIPLIER: 0.0,
-	KNOCKBACK_MULTIPLIER: 0.0,
 	PROJECTILE_SPEED_MULTIPLIER: 0.0,
 	AOE_RADIUS_MULTIPLIER: 0.0,
 }
 
 var flat_values := {
 	MAX_HP_BONUS: 0.0,
+	RECHARGE_TIME_REDUCTION: 0.0,
+	KNOCKBACK_LEVEL_BONUS: 0.0,
 }
 
 
@@ -61,6 +63,10 @@ func get_cast_rate_multiplier() -> float:
 	return maxf(0.01, 1.0 + additive_percent.get(CAST_RATE_MULTIPLIER, 0.0))
 
 
+func get_recharge_time_reduction() -> float:
+	return maxf(0.0, flat_values.get(RECHARGE_TIME_REDUCTION, 0.0))
+
+
 func get_gold_drop_chance_bonus() -> float:
 	return additive_percent.get(GOLD_DROP_CHANCE, 0.0)
 
@@ -69,8 +75,8 @@ func get_exp_gain_multiplier() -> float:
 	return maxf(0.0, 1.0 + additive_percent.get(EXP_GAIN_MULTIPLIER, 0.0))
 
 
-func get_knockback_multiplier() -> float:
-	return 1.0 + additive_percent.get(KNOCKBACK_MULTIPLIER, 0.0)
+func get_knockback_level_bonus() -> int:
+	return maxi(0, roundi(flat_values.get(KNOCKBACK_LEVEL_BONUS, 0.0)))
 
 
 func get_projectile_speed_multiplier() -> float:

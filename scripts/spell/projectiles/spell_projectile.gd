@@ -109,6 +109,7 @@ func _handle_hit(hit_source: Node = null) -> void:
 		_trigger_payload(global_position, _get_move_direction())
 
 	if request.explosion_radius > 0.0:
+		_apply_explosion_hits(global_position)
 		_spawn_explosion_radius_indicator()
 
 	if pierce_left > 0:
@@ -139,6 +140,29 @@ func _find_enemy_source(source: Node) -> Node:
 			return node
 		node = node.get_parent()
 	return null
+
+
+func _apply_explosion_hits(origin: Vector2) -> void:
+	if request == null or request.explosion_damage <= 0.0:
+		return
+
+	var radius_squared := request.explosion_radius * request.explosion_radius
+	for enemy in get_tree().get_nodes_in_group(&"enemy"):
+		if not enemy is Node2D or not enemy.has_method("apply_hit"):
+			continue
+		var enemy_node := enemy as Node2D
+		if enemy_node.global_position.distance_squared_to(origin) > radius_squared:
+			continue
+
+		var hit := HitData.new()
+		hit.damage = request.explosion_damage
+		hit.hit_point = origin
+		hit.hit_direction = (enemy_node.global_position - origin).normalized()
+		if hit.hit_direction == Vector2.ZERO:
+			hit.hit_direction = _get_move_direction()
+		hit.knockback_force = 0.0
+		hit.source = self
+		enemy.call("apply_hit", hit)
 
 
 func _trigger_payload(origin: Vector2, direction: Vector2) -> void:

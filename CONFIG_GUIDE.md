@@ -124,9 +124,13 @@
 
 动作卡字段来自：`scripts/spell/data/action_card_data.gd`
 
-- `damage`、`knockback_force`、`speed`、`lifetime`、`radius`
+- `damage`：直接命中伤害，受常规伤害增幅影响。
+- `knockback_level`：击退等级，0 级不击退，Boss 不吃击退。
+- `speed`、`lifetime`、`spell_size`
 - `projectile_count`、`spread_degrees`、`pierce`、`bounce`
-- `explosion_radius`、`projectile_color`、`on_hit_effects`
+- `explosion_radius`：爆炸半径，受 AOE 半径增幅影响。
+- `explosion_damage`：固定爆炸伤害，不受常规伤害增幅影响。
+- `projectile_color`、`on_hit_effects`
 
 修饰卡字段来自：`scripts/spell/data/modifier_card_data.gd`
 
@@ -162,7 +166,7 @@
 - `collision_radius`：碰撞半径。
 - `separation_radius`：敌人分离半径。
 - `separation_strength`：敌人分离力度。
-- `knockback_multiplier`：击退倍率。
+- `knockback_level`：击退等级，默认 1，使用 1 到 10 级平滑边际递减曲线换算实际击退；0 级不击退，等级 8 时普通敌人大致会被击退 36px，Boss 不吃击退。 
 - `hit_flash_duration`：受击闪烁时长。
 - `hit_flash_intensity`：受击闪烁强度。
 - `guaranteed_xp_drop`：固定经验掉落。

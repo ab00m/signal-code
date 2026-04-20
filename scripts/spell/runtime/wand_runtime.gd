@@ -12,6 +12,7 @@ enum ReloadMode {
 }
 
 const MIN_RELOAD_SECONDS := 1.0 / 60.0
+const MIN_RECHARGE_SECONDS := 0.1
 
 var projectile_factory: ProjectileFactory
 var run_modifier_controller: RunModifierController
@@ -189,15 +190,18 @@ func _start_cast_delay(cards: Array[SpellCardData]) -> void:
 func _start_recharge_delay() -> void:
 	var base_delay := _get_wand_recharge_delay()
 	var spell_delay := _get_total_recharge_delay()
-	var delay := maxf(0.0, base_delay + spell_delay)
+	var raw_delay := maxf(0.0, base_delay + spell_delay)
+	var reduction := _get_recharge_time_reduction()
+	var reduced_delay := maxf(0.0, raw_delay - reduction)
 	_deck_index = 0
 	_cards_drawn_this_cycle = 0
-	var adjusted_delay := _apply_cast_rate(delay)
+	var adjusted_delay := _apply_recharge_delay_modifiers(reduced_delay)
 	_log_card_delay_modifiers(_get_all_spell_cards(), "充能队列")
-	_log_runtime_delay("[法杖运行时] 总计充能延迟：法杖基础 %.2fs + 全部法术总计 %.2fs = %.2fs，实际 %.2fs" % [
+	_log_runtime_delay("[法杖运行时] 总计充能延迟：法杖基础 %.2fs + 全部法术总计 %.2fs = %.2fs，升级减免 %.2fs，实际 %.2fs" % [
 		base_delay,
 		spell_delay,
-		delay,
+		raw_delay,
+		reduction,
 		adjusted_delay,
 	])
 	_start_reload(ReloadMode.RECHARGE, adjusted_delay)
@@ -287,6 +291,16 @@ func _apply_cast_rate(duration: float) -> float:
 	if multiplier <= 0.0:
 		return maxf(0.0, duration)
 	return maxf(0.0, duration / multiplier)
+
+
+func _apply_recharge_delay_modifiers(duration: float) -> float:
+	return maxf(MIN_RECHARGE_SECONDS, _apply_cast_rate(duration))
+
+
+func _get_recharge_time_reduction() -> float:
+	if run_modifier_controller == null:
+		return 0.0
+	return run_modifier_controller.get_recharge_time_reduction()
 
 
 func _log_runtime_delay(message: String) -> void:

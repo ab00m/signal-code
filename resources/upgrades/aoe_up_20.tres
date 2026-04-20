@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="UpgradeOptionConfig" format=3 uid="uid://cng824x4cvsf7"]
+
+[ext_resource type="Script" uid="uid://bkxc26vm13udb" path="res://scripts/progression/upgrade_option_config.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"aoe_up_20"
+display_name = "Wide Broadcast"
+description = "Increase explosion radius by 30%."
+weight = 0.8
+category = &"combat"
+target_key = &"aoe_radius_multiplier"
+value = 0.3
+max_pick_count = 5

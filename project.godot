@@ -12,9 +12,9 @@ config_version=5
 
 config/name="SignalCode"
 run/main_scene="uid://bk80fxrac0p3i"
-application/run/max_fps=60
 config/features=PackedStringArray("4.6")
 config/icon="res://icon.png"
+application/run/max_fps=60
 
 [autoload]
 

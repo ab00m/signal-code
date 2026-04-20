@@ -179,6 +179,8 @@ func _apply_instant_effect(option: UpgradeOptionConfig) -> void:
 	match option.target_key:
 		&"restore_hit":
 			player.restore_hit(maxi(1, roundi(option.value)))
+		&"add_gold":
+			player.add_gold(maxi(1, roundi(option.value)))
 		_:
 			push_warning("Unknown instant upgrade target: %s" % option.target_key)
 
