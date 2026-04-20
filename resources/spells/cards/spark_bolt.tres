@@ -15,5 +15,4 @@ damage = 5.0
 knockback_force = 120.0
 speed = 480.0
 lifetime = 1.0
-radius = 4.0
 projectile_color = Color(0.45, 0.8, 1, 1)

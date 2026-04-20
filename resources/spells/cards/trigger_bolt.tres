@@ -16,7 +16,6 @@ damage = 4.0
 knockback_force = 120.0
 speed = 440.0
 lifetime = 1.4
-radius = 5.0
 projectile_color = Color(0.62, 1, 0.55, 1)
 trigger_mode = 0
 timer_delay = 0.0

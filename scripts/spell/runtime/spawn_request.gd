@@ -9,7 +9,7 @@ var damage: float = 0.0
 var knockback_force: float = 0.0
 var speed: float = 0.0
 var lifetime: float = 1.0
-var radius: float = 4.0
+var spell_size: float = 1.0
 var pierce: int = 0
 var bounce: int = 0
 var explosion_radius: float = 0.0
@@ -31,7 +31,7 @@ func duplicate_request() -> SpawnRequest:
 	request.knockback_force = knockback_force
 	request.speed = speed
 	request.lifetime = lifetime
-	request.radius = radius
+	request.spell_size = spell_size
 	request.pierce = pierce
 	request.bounce = bounce
 	request.explosion_radius = explosion_radius

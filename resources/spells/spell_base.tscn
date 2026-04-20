@@ -1,0 +1,18 @@
+[gd_scene format=3 uid="uid://wrl7ccxfo1he"]
+
+[ext_resource type="Texture2D" uid="uid://kjilau2yb85h" path="res://assets/gameplay/spell_base.png" id="1_jo8ct"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wvbpt"]
+size = Vector2(8, 4)
+
+[node name="SpellBase" type="Node2D" unique_id=1650523738]
+scale = Vector2(2, 2)
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1306833312]
+texture = ExtResource("1_jo8ct")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=2052065149]
+position = Vector2(3, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1337923364]
+shape = SubResource("RectangleShape2D_wvbpt")

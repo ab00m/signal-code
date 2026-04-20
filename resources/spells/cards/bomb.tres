@@ -16,6 +16,5 @@ damage = 25.0
 knockback_force = 120.0
 speed = 210.0
 lifetime = 1.8
-radius = 10.0
 explosion_radius = 30.0
 projectile_color = Color(0.9, 0.78, 0.24, 1)

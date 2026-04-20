@@ -20,6 +20,6 @@ gold_drop_chance = 1.0
 gold_drop_amount_min = 8
 gold_drop_amount_max = 12
 body_scene = ExtResource("2_body")
-body_scale = 5.0
+body_scale = 3.0
 body_color = Color(0.72, 0.36, 1, 1)
 outline_color = Color(1, 1, 1, 0.72)

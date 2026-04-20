@@ -146,7 +146,8 @@ func _build_request(
 	request.knockback_force = action.knockback_force * _get_knockback_multiplier()
 	request.speed = action.speed * bundle.speed_mul * _get_projectile_speed_multiplier()
 	request.lifetime = action.lifetime * bundle.lifetime_mul
-	request.radius = action.radius * bundle.size_mul * _get_aoe_radius_multiplier()
+
+	request.spell_size = action.spell_size
 	request.pierce = max(0, action.pierce + bundle.pierce_add)
 	request.bounce = max(0, action.bounce + bundle.bounce_add)
 	request.explosion_radius = action.explosion_radius * _get_aoe_radius_multiplier()

@@ -1,6 +1,8 @@
 class_name SpellProjectile
 extends Node2D
 
+const SPELL_BASE_SCENE: PackedScene = preload("res://resources/spells/spell_base.tscn")
+
 var request: SpawnRequest
 var payload_factory: ProjectileFactory
 var velocity: Vector2 = Vector2.ZERO
@@ -10,13 +12,16 @@ var bounce_left: int = 0
 
 var _trigger_timer_remaining: float = -1.0
 var _payload_triggered: bool = false
+var _spell_body: Node2D
 var _hit_area: Area2D
+var _spell_sprite: Sprite2D
 
 
 func configure(spawn_request: SpawnRequest) -> void:
 	request = spawn_request.duplicate_request()
 	global_position = request.origin
 	velocity = request.direction.normalized() * request.speed
+	rotation = request.direction.angle()
 	lifetime_remaining = request.lifetime
 	pierce_left = request.pierce
 	bounce_left = request.bounce
@@ -28,7 +33,7 @@ func _ready() -> void:
 	if request == null:
 		queue_free()
 		return
-	_setup_hit_area()
+	_setup_spell_body()
 
 
 func _process(delta: float) -> void:
@@ -36,6 +41,8 @@ func _process(delta: float) -> void:
 		return
 
 	global_position += velocity * delta
+	if velocity != Vector2.ZERO:
+		rotation = velocity.angle()
 	if request.trigger_mode == TriggerActionCardData.TriggerMode.ON_TIMER and not _payload_triggered:
 		_trigger_timer_remaining -= delta
 		if _trigger_timer_remaining <= 0.0:
@@ -50,41 +57,34 @@ func _process(delta: float) -> void:
 		queue_free()
 
 
-func _draw() -> void:
-	if request == null:
+func _setup_spell_body() -> void:
+	_spell_body = SPELL_BASE_SCENE.instantiate() as Node2D
+	if _spell_body == null:
 		return
 
-	draw_circle(Vector2.ZERO, request.radius, request.projectile_color)
-	draw_arc(Vector2.ZERO, request.radius + 2.0, 0.0, TAU, 24, Color(1, 1, 1, 0.55), 1.25)
-	if request.explosion_radius > 0.0:
-		draw_arc(
-			Vector2.ZERO,
-			minf(request.explosion_radius, 32.0),
-			0.0,
-			TAU,
-			32,
-			Color(1.0, 0.8, 0.35, 0.45),
-			1.0
-		)
+	_spell_body.scale *= _get_spell_size_scale()
+	add_child(_spell_body)
 
+	_spell_sprite = _spell_body.get_node_or_null("Sprite2D") as Sprite2D
+	if _spell_sprite != null:
+		_spell_sprite.modulate = request.projectile_color
 
-func _setup_hit_area() -> void:
-	_hit_area = Area2D.new()
-	_hit_area.name = "HitArea"
+	_hit_area = _spell_body.get_node_or_null("Area2D") as Area2D
+	if _hit_area == null:
+		return
+
 	_hit_area.collision_layer = 0
 	_hit_area.collision_mask = 1
 	_hit_area.monitoring = true
 	_hit_area.monitorable = false
 	_hit_area.body_entered.connect(_on_hit_body_entered)
 	_hit_area.area_entered.connect(_on_hit_area_entered)
-	add_child(_hit_area)
 
-	var circle := CircleShape2D.new()
-	circle.radius = maxf(1.0, request.radius)
 
-	var collision_shape := CollisionShape2D.new()
-	collision_shape.shape = circle
-	_hit_area.add_child(collision_shape)
+func _get_spell_size_scale() -> float:
+	if request == null:
+		return 1.0
+	return maxf(0.1, request.spell_size)
 
 
 func _on_hit_body_entered(body: Node2D) -> void:
@@ -107,6 +107,9 @@ func _handle_hit(hit_source: Node = null) -> void:
 
 	if request.trigger_mode == TriggerActionCardData.TriggerMode.ON_HIT:
 		_trigger_payload(global_position, _get_move_direction())
+
+	if request.explosion_radius > 0.0:
+		_spawn_explosion_radius_indicator()
 
 	if pierce_left > 0:
 		pierce_left -= 1
@@ -145,6 +148,21 @@ func _trigger_payload(origin: Vector2, direction: Vector2) -> void:
 	payload_factory.spawn_trigger_payload(request.trigger_payload, origin, direction, request.direction)
 
 
+func _spawn_explosion_radius_indicator() -> void:
+	var indicator := ExplosionRadiusIndicator.new()
+	indicator.explosion_radius = request.explosion_radius
+	indicator.color = request.projectile_color
+	var explosion_position := global_position
+
+	var parent := get_parent()
+	if parent == null:
+		parent = get_tree().current_scene
+	if parent == null:
+		return
+	parent.add_child(indicator)
+	indicator.global_position = explosion_position
+
+
 func _get_move_direction() -> Vector2:
 	var direction := velocity.normalized()
 	if direction == Vector2.ZERO and request != null:
@@ -152,3 +170,34 @@ func _get_move_direction() -> Vector2:
 	if direction == Vector2.ZERO:
 		direction = Vector2.RIGHT
 	return direction
+
+
+class ExplosionRadiusIndicator:
+	extends Node2D
+
+	const LIFETIME := 0.28
+
+	var explosion_radius: float = 16.0
+	var color: Color = Color.WHITE
+	var _time_remaining := LIFETIME
+
+
+	func _ready() -> void:
+		queue_redraw()
+
+
+	func _process(delta: float) -> void:
+		_time_remaining -= delta
+		if _time_remaining <= 0.0:
+			queue_free()
+			return
+		queue_redraw()
+
+
+	func _draw() -> void:
+		var progress := 1.0 - clampf(_time_remaining / LIFETIME, 0.0, 1.0)
+		var alpha := lerpf(0.55, 0.0, progress)
+		var ring_color := Color(color.r, color.g, color.b, alpha)
+		var fill_color := Color(color.r, color.g, color.b, alpha * 0.18)
+		draw_circle(Vector2.ZERO, explosion_radius, fill_color)
+		draw_arc(Vector2.ZERO, explosion_radius, 0.0, TAU, 64, ring_color, 2.0)
